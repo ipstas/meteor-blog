@@ -87,8 +87,8 @@ Meteor.publish('blogimages', function(params) {
 	var list = {};	
 	if (params._id)
 		list = {_id: params._id};
-	else if (params.pushit)
-		list = {pushit: params.pushit};
+	else if (params.posts)
+		list = {posts: {$in: params.posts}};
 	else
 		list = {userId: this.userId};
 

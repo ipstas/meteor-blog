@@ -48,6 +48,14 @@ const blogEditor = function(){
 			hideOnClick: true
 		},
 		autoLink: false,
+		diffLeft: 10,
+		diffTop: 10,
+		firstButtonClass: 'medium-editor-button-first',
+		lastButtonClass: 'medium-editor-button-last',
+		relativeContainer: null,
+		standardizeSelectionStart: false,
+		//static: true,
+		//align: 'center',
 		toolbar: {
 			buttons: [
 				'bold',
@@ -74,7 +82,11 @@ const blogEditor = function(){
 						'data-custom-attr': 'attr-value-h2'
 					}
 				},
+				
+				'justifyLeft',
 				'justifyCenter',
+				'justifyRight',
+				'removeFormat',
 				'quote',
 				'anchor',
 				'image'
@@ -103,7 +115,7 @@ const blogEditor = function(){
 const typeBtn = [
 	{ id: 'content', color: 'info', title:'Content', val:'blogContent', },
 	{ id: 'aggregated', color: 'info', title:'Aggregated', val:'blogAggregated'},
-	{ id: 'edit', color: 'info', title:'Edit', val:'blogEdit', disabled: 'disabled'},
+	{ id: 'edit', color: 'info', title:'New', val:'blogEdit'},
 	{ id: 'queue', color: 'info', title:'Queue', val:'blogQueue'},
 	{ id: 'status', color: 'info', title:'Status', val:'blogStatus'},
 	{ id: 'settings', color: 'info', title:'Settings', val:'blogSettings'},
@@ -122,11 +134,11 @@ Template.blogIt.onCreated(function () {
 	t.editselector = new ReactiveVar();
 	t.selectTag = new ReactiveVar();
 	t.mediumeditor = new ReactiveVar();
-/* 	t.autorun(()=>{
-		if (!FlowRouter.getQueryParam('push')) return;
-		let params = {caller: 'blogIt.onCreated', _id: FlowRouter.getQueryParam('push'), tag: FlowRouter.getQueryParam('tag'), debug: Session.get('debug')};
+	t.autorun(()=>{
+		if (!FlowRouter.getQueryParam('post')) return;
+		let params = {caller: 'blogIt.onCreated', _id: FlowRouter.getQueryParam('post'), debug: Session.get('debug')};
 		PostSubs.subscribe('blog', params);	
-	}) */
+	})
 
 	if (Session.get('debug')) console.log('[blogIt.onCreated] data', t.data);
 
@@ -148,9 +160,10 @@ Template.blogIt.helpers({
 		//console.log('[selector]', selector);
 		return selector;
 	},
-	push(){
-		if (!FlowRouter.getQueryParam('push')) return; 
-		var data = MeteorBlogCollections.Blog.findOne(FlowRouter.getQueryParam('push'));
+	data(){
+		if (!FlowRouter.getQueryParam('post')) return; 
+		//var data = MeteorBlogCollections.Blog.findOne({_id: FlowRouter.getQueryParam('post')});
+		var data = {_id: FlowRouter.getQueryParam('post')};
 		console.log('[blogIt.helpers] data', data);
 		return data;
 	},
@@ -163,9 +176,15 @@ Template.blogIt.events({
 		FlowRouter.setQueryParams({push: push});
 	}, */
 	'click .typeBtn'(e, t) {
-/* 		t.selector.set(this.val);
-		console.log('clicked cursor', e.target.id, this);		 */
-		//FlowRouter.setQueryParams({select: this.id, push: null, tag: null});
+		console.log('clicked cursor', e.target.id, this);		
+		if (this.id == 'edit'){
+			e.preventDefault();
+			let inserted = MeteorBlogCollections.Blog.insert({title:'Title. Make it nice and meaningful', html:'click to start editing', draft: true, userId: Meteor.userId(), scheduledAt: new Date()});
+			FlowRouter.setQueryParams({select: 'edit', post: inserted});		
+			console.log('[blogIt.events] typeBtn', this, inserted);
+		} else if (this._id == 'content')
+			FlowRouter.setQueryParams({select: null, post: null});	
+			
 	},
 	'click .soon'(e,t){
 		Bert.alert('this feature is coming soon', 'info');
@@ -281,31 +300,6 @@ Template.blogContent.helpers({
 	}
 });
 Template.blogContent.events({
-	'click .mededitable'(e,t){
-		//blogEditor();
-	},
-	'click .service'(e,t){	
-		//console.log('clicked service', e, this);
-		e.stopPropagation();
-		var updated;
-		var service = this.service || 'telegram';
-		var data = MeteorBlogCollections.Blog.findOne({_id: FlowRouter.getQueryParam('push'), services: service});
-		if (!data)
-			updated = MeteorBlogCollections.Blog.update(FlowRouter.getQueryParam('push'),{$addToSet:{services: service}});
-		else
-			updated = MeteorBlogCollections.Blog.update(FlowRouter.getQueryParam('push'),{$pull:{services: service}});
-		console.log('click service', service, updated, 'data:', data, MeteorBlogCollections.Blog.findOne(FlowRouter.getQueryParam('push')), 'this:', this, '\n');	
-	},
-	'click .schedule'(e,t){
-		//e.preventDefault();
-		//editor.destroy();
-		var mediumtext = {title: $('#mediumtitle').text(), text: $('#mediumtext').html()};
-		console.log('click schedule 2', editor, mediumtext);	
-	},
-	'click .remove'(e,t){
-		console.log('clicked remove', e, this.valueOf());
-		MeteorBlogCollections.Blog.update(FlowRouter.getQueryParam('push'),{$pull:{image: this.valueOf()}});
-	},
 	'click .loadMore'(e,t){
 		if (Session.get('debug')) console.log('clicked more', FlowRouter.getQueryParam('more'), t.next.get(), t.count.get());
 		let more =  parseInt(FlowRouter.getQueryParam('more')) || t.limit.get(); 
@@ -320,13 +314,13 @@ Template.blogContent.events({
 Template.blogImage.onCreated(function () {
 	window.prerenderReady = false;
 	let t = Template.instance();	
-	let params = {caller: 'blogImage.onCreated', pushit: this._id};
+	let params = {caller: 'blogImage.onCreated', posts: [this._id]};
 	PostSubs.subscribe('blogimages', params);
 });
 Template.blogImage.helpers({
 	img(){
 		let url = '/img/loading.gif';
-		let data = MeteorBlogCollections.BlogImages.findOne({pushit: this._id});
+		let data = MeteorBlogCollections.BlogImages.findOne({posts: this._id});
 		if (data)
 			url = data.url.replace(/upload/,'upload/c_thumb,w_200,g_face');
 		console.log('[blogImage.helpers] img', data, this);
@@ -439,6 +433,9 @@ Template.blogPost.helpers({
 
 		return data;
 	},		
+	author(){
+		return this.userId == Meteor.userId();
+	},
 	img(){
 		let t = Template.instance();
 		var img;
@@ -505,38 +502,26 @@ Template.blogPost.events({
 	'click .typeBtn'(e, t) {
 		FlowRouter.setQueryParams({select: this.id, push: null});
 	},
-	'click .service'(e,t){	
-		//console.log('clicked service', e, this);
-		e.stopPropagation();
-		var updated;
-		var service = this.service || 'telegram';
-		var data = MeteorBlogCollections.Blog.findOne({_id: FlowRouter.getQueryParam('push'), services: service});
-		if (!data)
-			updated = MeteorBlogCollections.Blog.update(FlowRouter.getQueryParam('push'),{$addToSet:{services: service}});
-		else
-			updated = MeteorBlogCollections.Blog.update(FlowRouter.getQueryParam('push'),{$pull:{services: service}});
-		console.log('click service', service, updated, 'data:', data, MeteorBlogCollections.Blog.findOne(FlowRouter.getQueryParam('push')), 'this:', this, '\n');	
-	},
 	'click .schedule'(e,t){
 		var text = $('.mededitable').each(function(){console.log(this.innerText)});
 		var mediumtitle = $('#mediumtitle').text();
 		var mediumtext = {html: $('#mediumtext').html(), text: $('#mediumtext')[0].innerText};
 		console.log('click schedule 1', e, mediumtitle, mediumtext);	
-		MeteorBlogCollections.Blog.update(FlowRouter.getQueryParam('push'),{$set:{title: mediumtitle, html: mediumtext.html, text: mediumtext.text}});
+		MeteorBlogCollections.Blog.update({_id: this._id},{$set:{title: mediumtitle, html: mediumtext.html, text: mediumtext.text}});
 		console.log('click schedule 2', e, mediumtext);	
 	},
 	'click .remove'(e,t){
 		console.log('clicked remove', this);
-		MeteorBlogCollections.Blog.remove(this._id);
+		MeteorBlogCollections.Blog.remove({_id: this._id});
 		history.go(-1);
 	},	
 	'click .blacklist'(e,t){
 		console.log('clicked blacklist', this);
-		MeteorBlogCollections.Blog.update(this._id, {$set: {blacklist: true}});
+		MeteorBlogCollections.Blog.update({_id: this._id}, {$set: {blacklist: true}});
 	},	
 	'change #draft'(e,t){
 		console.log('clicked draft', e.target.checked, this);
-		MeteorBlogCollections.Blog.update(this._id, {$set: {draft: !e.target.checked}});
+		MeteorBlogCollections.Blog.update({_id: this._id}, {$set: {draft: !e.target.checked}});
 	},
 	'click a'(){
 		$('html, body').animate({scrollTop: $('body').offset().top -150 }, 'slow');		
@@ -634,32 +619,38 @@ Template.blogEdit.onCreated(function () {
 	console.log('[blogEdit.onCreated] data', t.data);
 	//$('#mediumtext').html('');
 	if (t.data) return;
-	// let params = {caller: 'blogEdit.onCreated', _id: FlowRouter.getQueryParam('push'), debug: Session.get('debug')};
-	// PostSubs.subscribe('blog', params);	
+	let params = {caller: 'blogEdit.onCreated', _id: t.data._id, debug: Session.get('debug')};
+	PostSubs.subscribe('blog', params);	
 });
 Template.blogEdit.onRendered(function () {
 	let t = Template.instance();
-
-	//let data = MeteorBlogCollections.Blog.findOne(FlowRouter.getQueryParam('push'));
 	
-	t.autorun(()=>{
-		if (!t.data) return;
-		console.log('[blogEdit.onRendered] data', t.data);
-
-		$('#mediumtitle').text(t.data.title);
-		$('#mediumtext').html('');
-		$('#mediumtext').html(t.data.html);
+	t.autorun((computation)=>{
+		//if (!t.data) return;
+		let self = MeteorBlogCollections.Blog.findOne({_id: t.data._id});
+		if(!self) return;
+		//console.log('[blogEdit.onRendered] data:', self, $('#mediumtitle'));
+		$('#mediumtitle').text(self.title);
+		$('#mediumtext').html(self.html);
 		blogEditor();	
 		editor.subscribe('editableInput', function (event, editable) {
-			console.log('editableInput', event.target.innerHTML, event, editable);
-			MeteorBlogCollections.Blog.update({_id: FlowRouter.getQueryParam('push')},{$set:{html: event.target.innerHTML}});
-		});		
-		
+			console.log('[blogEdit.onRendered] editableInput:', self, '\nevent:', event.target.innerHTML, event, editable);
+			MeteorBlogCollections.Blog.update({_id: self._id},{$set:{html: event.target.innerHTML}});
+		});				
+		computation.stop();
 	})
 
-	
-
-	console.log('[blogContent.onRendered] mediumeditor', $('#mediumtext').html(), editor);			
+ 
+/* 	let self = Template.currentData();
+	console.log('[blogEdit.onRendered] data', self, $('#mediumtitle'));
+	blogEditor();	
+	$('#mediumtitle').text(self.title);
+	$('#mediumtext').html(self.html);
+	editor.subscribe('editableInput', function (event, editable) {
+		console.log('[blogEdit.onRendered] editableInput', self, '\nevent:', event.target.innerHTML, event, editable);
+		MeteorBlogCollections.Blog.update({_id: self._id},{$set:{html: event.target.innerHTML}});
+	});		 */
+	console.log('[blogEdit.onRendered] mediumeditor', $('#mediumtext').html(), editor);			
 	
 });
 Template.blogEdit.helpers({
@@ -698,58 +689,55 @@ Template.blogEdit.helpers({
 			return 'info';
 	},
 	collection(){
-		var data = MeteorBlogCollections.Blog;
-		console.log('pushit collection', data);
-		return data;
+		return MeteorBlogCollections.Blog;
 	},	
 	schema(){
 		var data = MeteorBlogSchemas.Blog;
-		console.log('pushit schema', data);
+		//console.log('pushit schema', data);
 		return data;
 	},
 	day(){
 		return new Date(Date.now() + 1000*60*60*24);
 	},
 	post(){
-		let t = Template.instance();
-		var data = MeteorBlogCollections.Blog.findOne(FlowRouter.getQueryParam('push'));
-		if (data)
-			t.ready.set(true);
-		else
-			t.ready.set();
-		console.log('pushit data', data, this);
-		return data;
+		return MeteorBlogCollections.Blog.findOne(this._id);
 	},		
-	dataImg(){
-		
-		//this.cloudenv.cloudThumb = Meteor.settings.public.CLOUDINARY_THUMB + '/';
-		//this.cloudenv.cloudPreview = Meteor.settings.public.CLOUDINARY_PREVIEW + '/';
-		var data = MeteorBlogCollections.BlogImages.findOne(this.valueOf());
-		//if (!data) return;
-		console.log('dataImg', this.valueOf()	, data, '\n\n'); 
-		//return data;
-		return data.url.replace(/upload/, 'upload/' + Meteor.settings.public.cloudinary.options.scaled	);
-	},
 	debug(){
-		var data = MeteorBlogCollections.Blog.findOne(FlowRouter.getQueryParam('push'));
-		console.log('pushit data debug', data, this);
+		console.log('[blogEdit.helpers] debug:', this);
 	}
 });
 Template.blogEdit.events({
 	'click .mededitable'(e,t){
 		//blogEditor();
 	},
+	'click img'(e,t){
+		console.log('[blogEdit.events] img', this, e)
+		//if (e.currentTarget.id != 'mediumtext') return;
+		
+		let target = $(e.target);   
+		target.addClass('img-fluid');
+		target.parents('p').css({'text-align': 'center'}).addClass('w-100');
+		if (target.hasClass('w-50'))
+			target.removeClass('w-50').addClass('w-75');
+		else if (target.hasClass('w-75'))
+			target.removeClass('w-75').addClass('w-100');
+		else if (target.hasClass('w-100'))
+			target.removeClass('w-100').addClass('w-50');
+		else
+			target.addClass('w-50');
+		console.log('[blogEdit.events] 2 img', this, target, e.target);
+	},
 	'click .service'(e,t){	
 		//console.log('clicked service', e, this);
 		e.stopPropagation();
 		var updated;
 		var service = this.service || 'telegram';
-		var data = MeteorBlogCollections.Blog.findOne({_id: FlowRouter.getQueryParam('push'), services: service});
+		var data = MeteorBlogCollections.Blog.findOne({_id: this._id, services: service});
 		if (!data)
-			updated = MeteorBlogCollections.Blog.update(FlowRouter.getQueryParam('push'),{$addToSet:{services: service}});
+			updated = MeteorBlogCollections.Blog.update({_id: this._id},{$addToSet:{services: service}});
 		else
-			updated = MeteorBlogCollections.Blog.update(FlowRouter.getQueryParam('push'),{$pull:{services: service}});
-		console.log('click service', service, updated, 'data:', data, MeteorBlogCollections.Blog.findOne(FlowRouter.getQueryParam('push')), 'this:', this, '\n');	
+			updated = MeteorBlogCollections.Blog.update({_id: this._id},{$pull:{services: service}});
+		console.log('click service', service, updated, 'data:', data, MeteorBlogCollections.Blog.findOne(this._id), 'this:', this, '\n');	
 	},
 	'click .schedule'(e,t){
 		//e.preventDefault();
@@ -762,11 +750,12 @@ Template.blogEdit.events({
 		doc.scheduledAt = new Date($( "input[name*='scheduledAt']" ).val());
 		doc.draft = $( "input[name*='draft']" ).is(':checked')
 		console.log('click schedule 2', this, doc);	
+		console.log('clicked schedule', this);
 		MeteorBlogCollections.Blog.update({_id: this._id},{$set: doc});
 	},
 	'click .remove'(e,t){
-		console.log('clicked remove', e, this.valueOf());
-		MeteorBlogCollections.Blog.update(FlowRouter.getQueryParam('push'),{$pull:{image: this.valueOf()}});
+		console.log('clicked remove', this, e, this.valueOf());
+		MeteorBlogCollections.Blog.update({_id: this._id},{$pull:{image: this.valueOf()}});
 	},
 /* 	'click .newpush'(e, t) {
 		var push = MeteorBlogCollections.Blog.insert({title:'Title. That will be used in Medium only for the url',html:'start editing'});
@@ -837,7 +826,7 @@ Template.blogQueue.helpers({
 	isAdmin(){
 		return (Roles.userIsInRole(Meteor.userId(), ['admin'], 'admGroup')) ;
 	},
-	push(){
+	posts(){
 		let t = Template.instance();
 		var data, list, sort;
 		list = {userId: Meteor.userId(), posted: {$exists: false}};		
@@ -847,7 +836,13 @@ Template.blogQueue.helpers({
 			list.tags = {$in: tags.tags};
 		data = MeteorBlogCollections.Blog.find(list, sort);
 		return data;
-	}
+	},
+	htmlCut(){
+		let txt = $('img', $(this.html)).remove().end().text();
+		txt = txt.substr(0,260) + '...';
+		//console.log('[blogContent.helpers] htmlCut', txt, this.html);
+		return txt;	
+	},
 });
 Template.blogQueue.events({
 	'click .remove'(e,t){
@@ -867,17 +862,6 @@ Template.blogStatus.onCreated(function () {
 
 	t.subscribe('blog',{all: true});
 
-	t.autorun(function(){
-		sub = t.subscribe('tours',{
-			userId: Meteor.userId(),
-			posted: true,
-			limit: t.limit.get(),
-			sort: t.sort.get(),
-			tags: tags,
-			debug: Session.get('debug')
-		});
-		//console.log('tours.onCreated sub', sub, t.limit.get());
-	})	
 	t.autorun(function(){
 		if (sub)
 			t.ready.set(sub.ready());
@@ -910,11 +894,11 @@ Template.blogStatus.helpers({
 	isAdmin(){
 		return (Roles.userIsInRole(Meteor.userId(), ['admin'], 'admGroup')) ;
 	},
-	push(){
+	posts(){
 		let t = Template.instance();
 		var data, list, sort;
-		list = {};
-		sort = {sort: t.sort.get()};
+		list = {aggregated: {$ne: true}};
+		sort = {sort: {scheduledAt: -1}};
 		tags = _LocalTags.findOne();
 		if (tags && tags.tags)
 			list.tags = {$in: tags.tags};
@@ -1074,16 +1058,16 @@ Template.blogImages.onCreated(function () {
 			sort: t.sort.get()
 		});
 		t.ready.set(sub.ready());
-		console.log('pushimages.onCreated sub images', t.selectUsed.get(), t.loaded.get(), t.limit.get(), t.sort.get(), t.ready.get());
+		//console.log('pushimages.onCreated sub images', t.selectUsed.get(), t.loaded.get(), t.limit.get(), t.sort.get(), t.ready.get());
 	})	
 	t.autorun(function(){
-		if (!t.ready.get())
-			return;
+		if (!t.ready.get()) return;
 		t.loaded.set(MeteorBlogCollections.BlogImages.find().count());
 		dragImg();
-		if (Session.get('debug')) console.log('pushimages.onCreated sub ready', t.selectUsed.get(), t.loaded.get(), t.limit.get(), t.sort.get(), t.ready.get());
+		//if (Session.get('debug')) console.log('pushimages.onCreated sub ready', t.selectUsed.get(), t.loaded.get(), t.limit.get(), t.sort.get(), t.ready.get());
 	})
 	
+	console.log('[blogImages.onCreated] data', t.data);
 
 });
 Template.blogImages.onRendered(function () {
@@ -1169,9 +1153,8 @@ Template.blogImages.helpers({
 			return true;
 		return (t.limit.get() - t.next.get() <= t.loaded.get());
 	},
-	isReady() {
+	ready() {
 		let t = Template.instance();
-		if (Session.get('debug')) console.log('pushimages isReady', t.ready.get(), 'vars:', t.selectUsed.get(), t.limit.get(), t.sort.get(), t.loaded.get() );
 		return t.ready.get();
 	},
 	loaded(){
@@ -1215,16 +1198,18 @@ Template.blogImages.helpers({
 			list.tags = {$in: tags.tags};
 		if (t.selectUsed.get())
 			list.tour_id = {$exists: false};
-		
-		images = MeteorBlogCollections.Blog.findOne(FlowRouter.getQueryParam('push'));
+
+		t.sort.set(Session.get('sort'));
+		sort = {sort: t.sort.get()};		
+
+		images = this.images;
 		if (images && images.image && images.image.length)
 			list._id = {$nin: images.image};		
 
-		t.sort.set(Session.get('sort'));
-		sort = {sort: t.sort.get()};
 		
 		data = MeteorBlogCollections.BlogImages.find(list,sort);
-		//if (Session.get('debug')) console.log('panos', 'list:', list, 'sort:', sort, 'pro:', prouser, '\ndata:', data.count(), this, '\n\n'); 
+		//if (Session.get('debug')) console.log('[blogImages.helpers] images list:', data.count(), list, 'sort:', sort, '\nthis:', this, '\n'); 
+		
 		imgOnScroll();
 		//t.loaded.set(data.count());
 		return data;
@@ -1246,27 +1231,207 @@ Template.blogImages.helpers({
 		return moment(this.createdAt).format('LLL');
 	},
 	dataImg(){
-		return this.url.replace(/upload/, 'upload/' + Meteor.settings.public.cloudinary.options.scaled	);
+		if (Session.get('debug')) console.log('[blogImages.helpers] dataImg:', this, '\n'); 
+		return this.image.url.replace(/upload/, 'upload/' + Meteor.settings.public.cloudinary.options.scaled	);
 	},
+	debug(){
+		console.log('[blogImages.helpers] debug:', this);
+	}
 });
 Template.blogImages.events({
 	'click #infiniteCheck'(e,t){
 		t.limit.set(t.limit.get() + t.next.get());
 	},	
-	'click .publish' ( e, t ) {
+	'click .updateTag'(e,t){
+		console.log('click updateTag', this);
+		var selected = []
+	},
+	'click .selectTags'(e,t){
+		e.stopPropagation();
+		var data;
+		data = _LocalTags.findOne();
+		console.log('clicked selectTags', this);
+	},	
+	'click .removeTag'(e,t){
+		e.stopPropagation();
+		var data = _LocalTags.findOne();
+	},
+	'click .remove' ( e, t ) {
+		console.log('clicked remove', this._id, e.target.id, '\this:', this, e, t.data);
+		MeteorBlogCollections.BlogImages.remove(this._id);
+	},	
+	'click .selectUsed'(e,t){
+		t.selectUsed.set(!t.selectUsed.get());
+	},	
+	'click .viewImg' (e,t){
+		console.log('viewpano', this);
+		this.dataImg = this.url.replace(/upload/, 'upload/' + Meteor.settings.public.cloudinary.options.scaled	);
+		Modal.show('viewpanoModal', this);
+	},
+});
+
+Template.blogImageInside.onCreated(function () {
+	window.prerenderReady = false;
+	let t = Template.instance();
+  t.state = new ReactiveDict();
+	t.vrloading = new ReactiveVar();
+	t.showtime = new ReactiveVar();
+	t.sortPano = new ReactiveVar( 'date' );
+	t.selectUsed = new ReactiveVar();
+	t.ready = new ReactiveVar();
+	t.next = new ReactiveVar(6);
+	t.limit = new ReactiveVar(6);
+	t.sort = new ReactiveVar({createdAt: -1});
+	t.loaded = new ReactiveVar(0);
+	
+	if (Session.get('sort'))
+		t.sort.set(Session.get('sort'));	
+	
+	var sub;
+
+	t.autorun(function(){
+		var tags = [];
+		if (_LocalTags.findOne() && _LocalTags.findOne().tags) 
+			tags = _LocalTags.findOne().tags;
+		sub = PostSubs.subscribe('blogimages',{
+			caller: 'blogImages.onCreated',
+			userId: Meteor.userId(),
+			tags: tags,
+			unused: t.selectUsed.get(),
+			limit: t.limit.get(),
+			sort: t.sort.get()
+		});
+		t.ready.set(sub.ready());
+		//console.log('pushimages.onCreated sub images', t.selectUsed.get(), t.loaded.get(), t.limit.get(), t.sort.get(), t.ready.get());
+	})	
+	t.autorun(function(){
+		if (!t.ready.get())
+			return;
+		t.loaded.set(MeteorBlogCollections.BlogImages.find().count());
+		dragImg();
+		//if (Session.get('debug')) console.log('pushimages.onCreated sub ready', t.selectUsed.get(), t.loaded.get(), t.limit.get(), t.sort.get(), t.ready.get());
+	})
+	
+
+});
+Template.blogImageInside.onRendered(function () {
+	let t = Template.instance();
+	var vrView, data;
+	Session.set('selectDate', false);
+	
+/* 	$('#datepicker').val('');
+	
+	t.autorun(function(){
+		if (!t.ready.get())
+			return;
 		
-		//MeteorBlogCollections.Blog.update(FlowRouter.getQueryParam('push'),{$addToSet:{image: this._id}});
-		let node = document.createElement("p");    
+		imgOnScroll();
+		data = MeteorBlogCollections.BlogImages.find({userId: Meteor.userId()},{sort: t.sort.get()});	
+		//t.loaded.set(data.count());
+		//console.log('userpanos.onRendered loaded data', data.count());
+		
+		if (!data || $('#datepicker').hasClass('hasDatepicker'))
+			return console.warn('userpanos.onRendered datepicker NOT', data.count());
+		
+		// if (!$('#datepicker').hasClass('hidden'))
+			// $('#datepicker').val(data.createdAt.toLocaleDateString());
+		$('#datepicker').datepicker(
+			{
+				autoclose: true,
+				todayHighlight: true,
+			}
+		);
+		$('#datepicker').addClass('hasDatepicker');
+			
+		//$('#datepicker').datepicker('update',data.createdAt);		
+		//console.log('datepicker YES', data, data.createdAt.toLocaleDateString(), $('#datepicker').val(), Session.get('selectDate')	);
+	}); */
+	
+
+  $(window).scroll(function(){
+		//imgOnScroll();	
+		//checkMore(t);
+  });
+
+	
+	// make panos selectable
+	var prev = -1;
+/* 	$( '#selectablePanos' ).selectable({
+			filter: ".selectablePano",
+			selecting: function(e, ui) { // on select
+				console.log('selecting 0', e, ui, this, $(this).find('.panoId').attr('alt'));
+					var curr = $(ui.selecting.tagName, e.target).index(ui.selecting); // get selecting item index
+					if(e.shiftKey && prev > -1) { // if shift key was pressed and there is previous - select them all
+							$(ui.selecting.tagName, e.target).slice(Math.min(prev, curr), 1 + Math.max(prev, curr)).addClass('ui-selected');
+							prev = -1; // and reset prev
+					} else {
+							prev = curr; // othervise just save prev
+					}
+			},
+		 selected: function(e,ui) { 
+			console.log('selecting 1', e, ui, this, $(this).find('.panoId').attr('alt'));
+			var result = $( "#result" ).empty();
+			$( ".ui-selected", this ).each(function() {
+				 var index = $( "#selectable-7 li" ).index( this );
+				 result.append( " #" + ( index + 1 ) );
+			});
+		 },
+		stop: function(e,ui) {   
+			console.log('selecting 2', e, ui, this, $(this).find('.panoId').attr('alt'));
+			$(".ui-selected input", this).each(function() {
+				this.checked= !this.checked;
+				console.log('selected2', this, $(this).find('.checkedBox'));
+			});
+			
+		},
+		cancel: ":input,option,a,.nonselectable"
+	});	 */
+});
+Template.blogImageInside.onDestroyed(function () {
+	//$('#datepicker').datepicker('destroy');
+});
+Template.blogImageInside.helpers({
+	tags(){
+		var data = MeteorBlogCollections.BlogImages.find({userId: Meteor.userId()},{fields: {tags: 1}}).fetch();
+		var alltags=[];
+		_.map(_.pairs(_.countBy(_.compact(_.flatten(_.pluck(data,'tags'))))),function(obj){alltags.push({tag: obj[0], count: obj[1]})});
+		alltags = _.reject(alltags,function(tag){ return tag.count < 2; });
+		alltags.reverse();
+		console.log('userpanos tags', alltags.length, alltags);
+		return alltags;
+	},
+	usedTimes(){
+		//console.log('[blogImage.helpers] usedTimes', this);
+		if (this.posts)
+			return this.pushit.length;
+	},
+	date(){
+		return moment(this.createdAt).format('LLL');
+	},
+	dataImg(){
+		//if (Session.get('debug')) console.log('[blogImageInside.helpers] dataImg:', this, '\n'); 
+		return this.image.url.replace(/upload/, 'upload/' + Meteor.settings.public.cloudinary.options.scaled	);
+	},
+});
+Template.blogImageInside.events({
+	'click #infiniteCheck'(e,t){
+		t.limit.set(t.limit.get() + t.next.get());
+	},	
+	'click .publish' ( e, t ) {
+		let node, img, upload, updated;
+		node = document.createElement("p");    
 		node.id = this._id;
-		let img = document.createElement("img");       
-		let upload = 'upload/c_limit,f_auto,fl_progressive:steep,h_256,q_auto,w_512';
-		img.src = this.url.replace(/upload/, upload );
+		img = document.createElement("img");       
+		//upload = 'upload/'+ Meteor.settings.public.cloudinary.options.smaller;
+		upload = 'upload/h_200,q_auto,f_auto,dpr_auto,e_improve,fl_progressive:steep/c_scale,w_auto';
+		console.log('[blogImageInside.events] publish 0', updated, this, upload, node, img);
+		img.src = this.image.url.replace(/upload/, upload );
 		node.appendChild(img); 
 		document.getElementById("mediumtext").appendChild(node);
 		$('#mediumtext').find('img').addClass('img-fluid');
 		$(this._id).addClass('blogImg');
-		MeteorBlogCollections.BlogImages.update(this._id, {$addToSet: {pushit: FlowRouter.getQueryParam('push')}});
-		console.log('click publish pushimages', this, upload, node, img);
+		updated = MeteorBlogCollections.BlogImages.update({_id: this._id}, {$addToSet: {posts: this.post._id}});
+		console.log('[blogImageInside.events] publish', updated, this, upload, node, img);
 	},	
 	'click .updateTag'(e,t){
 		console.log('click updateTag', this);
@@ -1299,12 +1464,12 @@ Template.blogImages.events({
 Template.blogImagesAdd.helpers({
 	collection(){
 		var data = MeteorBlogCollections.BlogImages;
-		console.log('pushit collection', data);
+		//console.log('[blogImagesAdd.helpers] MeteorBlogCollections.BlogImages collection', data);
 		return data;
 	},	
 	schema(){
 		var data = MeteorBlogSchemas.BlogImages;
-		console.log('pushit schema', data);
+		//console.log('[blogImagesAdd.helpers] MeteorBlogSchemas.BlogImages schema', data);
 		return data;
 	},	
 });
@@ -1412,7 +1577,7 @@ Template.blogAggregated.helpers({
 	htmlCut(){
 		let txt = $('img', $(this.html)).remove().end().text();
 		txt = txt.substr(0,260) + '...';
-		console.log('[blogContent.helpers] htmlCut', txt, this.html);
+		//console.log('[blogContent.helpers] htmlCut', txt, this.html);
 		return txt;	
 	},
 	img(){
@@ -1422,13 +1587,13 @@ Template.blogAggregated.helpers({
 		else 
 			url = this.image[0];
 			
-		console.log('[blogContent.helpers] img', url, this.image, this);
+		//console.log('[blogContent.helpers] img', url, this.image, this);
 		return url;
 	},
 	schema(){
 		return MeteorBlogSchemas.BlogPullMedium
 	},
-	formdefault(){
+	doc(){
 		formdefault = {};
 		formdefault.q = 'Smart Home';
 		formdefault.action = 'tag';
@@ -1439,26 +1604,6 @@ Template.blogAggregated.helpers({
 	}
 });
 Template.blogAggregated.events({
-	'click .service'(e,t){	
-		//console.log('clicked service', e, this);
-		e.stopPropagation();
-		var updated;
-		var service = this.service || 'telegram';
-		var data = MeteorBlogCollections.Blog.findOne({_id: FlowRouter.getQueryParam('push'), services: service});
-		if (!data)
-			updated = MeteorBlogCollections.Blog.update(FlowRouter.getQueryParam('push'),{$addToSet:{services: service}});
-		else
-			updated = MeteorBlogCollections.Blog.update(FlowRouter.getQueryParam('push'),{$pull:{services: service}});
-		if (Session.get('debug')) console.log('click service', service, updated, 'data:', data, MeteorBlogCollections.Blog.findOne(FlowRouter.getQueryParam('push')), 'this:', this, '\n');	
-	},
-	'click .schedule'(e,t){
-		var text = $('.mededitable').each(function(){console.log(this.innerText)});
-		var mediumtitle = $('#mediumtitle').text();
-		var mediumtext = {html: $('#mediumtext').html(), text: $('#mediumtext')[0].innerText};
-		if (Session.get('debug')) console.log('click schedule 1', e, mediumtitle, mediumtext);	
-		MeteorBlogCollections.Blog.update(FlowRouter.getQueryParam('push'),{$set:{title: mediumtitle, html: mediumtext.html, text: mediumtext.text}});
-		console.log('click schedule 2', e, mediumtext);	
-	},
 	'click .ban'(e,t){
 		if (Session.get('debug')) console.log('clicked remove', this);
 		let creator = MeteorBlogCollections.BlogUsers.findOne({creatorId: this.creatorId});

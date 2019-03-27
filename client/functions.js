@@ -150,7 +150,7 @@ export const selectTags = function(){
 			query: {tags:/web/}
 	});
 }
-export const dragImg = function (){
+export const dragImg = function (t){
 
 	$("#mediumimg").droppable({ accept: ".mediumdrag", 
 		drop: function(e, ui) {
@@ -174,7 +174,7 @@ export const dragImg = function (){
 			console.log('updating pushit image:', $(ui.draggable).find("img").first(), image);	
 			MeteorBlogCollections.Blog.update(FlowRouter.getQueryParam('push'),{$addToSet:{image: image}});
 			console.log('updating pushimages pushit:', FlowRouter.getQueryParam('push'));
-			MeteorBlogCollections.BlogImages.update(image, {$addToSet: {pushit: FlowRouter.getQueryParam('push')}});
+			MeteorBlogCollections.BlogImages.update(image, {$addToSet: {posts: FlowRouter.getQueryParam('push')}});
 			//dropScene(params);
 		}, 
 		over: function(e, elem) {

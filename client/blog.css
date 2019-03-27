@@ -4,3 +4,25 @@
 .blogPost{
 	min-height: 300px;
 }
+#blogIt label {
+	padding: 0.25rem !important;
+}
+.mediumtext .w50{
+	width: 50%
+}
+.mediumtext .w70{
+	width: 70%
+}
+.mediumtext .w100{
+	width: 100%
+}
+.blogPost p {
+	padding-bottom: 5px;
+	padding-top: 5px;
+}
+.blogPost .floatRight{
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	z-index: 10
+}

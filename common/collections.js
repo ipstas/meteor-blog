@@ -182,9 +182,9 @@ MeteorBlogSchemas.Blog = new SimpleSchema({
 	tags: {
 		type: Array,
 		optional: true,
-/* 		autoform: {
+		autoform: {
 			type: 'tags'
-		} */
+		}
 	}, 
 	'tags.$': {
 		type: String,
@@ -296,11 +296,11 @@ MeteorBlogSchemas.BlogImages = new SimpleSchema({
 		type: String,
 		optional: true,
 	},
-	pushit: {
+	posts: {
 		optional: true,
 		type: Array,
 	},
-	'pushit.$': {
+	'posts.$': {
 		type: String,
 		optional: true,
 	},  
