@@ -57,8 +57,8 @@ const job5 = new CronJob({
 		 */
 		 
 		await Meteor.call('social.medium.pull.tag',{q: 'Smart Home'},(e,r)=>{
-			if (err) console.warn('ERR [cron social.medium.pull.tag]', e, r);
-			console.log('[cron social.medium.pull.tag]', r, r);
+			if (err) console.warn('ERR [cron] social.medium.pull.tag', e, r);
+			console.log('[cron] social.medium.pull.tag', r, r);
 		});
 	},
 	start: false,
@@ -66,6 +66,8 @@ const job5 = new CronJob({
 });
 
 Meteor.startup(function(){
-		let job = job5.start();
-		console.log('[cron started] job:', job);
+	let job = job5.start();
+	console.log('[cron] startup job:', job);
 });
+
+//console.log('[cron] imported:', job5);

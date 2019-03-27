@@ -42,10 +42,10 @@
 
 		<div class="row {{grayscale}}">
 			{{#each posts}}		
-				<div class="col-12 col-sm-6 col-md-4">
+				<div class="col-12 col-sm-6 col-md-4 p-3">
 					<div id="mediumimg" class="img-fluid">
 	<!-- 					{{>blogImage}} -->
-						<a href="/blog/post/{{postid}}"><img src="{{img}}" class="img-fluid" /></a>
+						<a href="/blog/post/{{postid}}"><img src="{{img}}" class="thumbnail img-fluid" /></a>
 					</div>
 					<div id="mediumtitle" class="mediumtitle h4 p-2">
 						<a href="/blog/post/{{postid}}">{{title}}</a>
@@ -537,9 +537,9 @@
 			</div>
 		</div>
 		<div class="h3">Draft Aggregated Posts</div>
-		<div class="row {{grayscale}}">
+		<div class="row align-items-center justify-content-center ">
 			{{#each posts}}		
-				<div class="col-12 col-sm-6 col-md-4 pb-5">
+				<div class="col-12 col-sm-6 col-md-4 pb-5 animated fadeIn">
 					<div id="mediumimg" class="img-fluid">
 						<a href="/blog/post/{{postid}}"><img src="{{img}}" class="img-fluid" /></a>
 					</div>
@@ -558,6 +558,13 @@
 							<span class="sr-only">getting data ready</span>
 						</div>		
 						getting blog posts
+					</div>
+				{{else}}
+					<div class="col-8 animated fadeIn text-center">
+						No new posts were discovered
+					</div>					
+					<div class="col-4 animated fadeIn">
+						<img src="https://res.cloudinary.com/orangry/image/upload/v1553669638/hundredgraphs/no_news.jpg" class="img-fluid"/>
 					</div>
 				{{/unless}}
 			{{/each}}

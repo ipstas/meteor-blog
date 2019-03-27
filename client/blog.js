@@ -106,6 +106,7 @@ const typeBtn = [
 ];
 
 Template.blogIt.onCreated(function () {
+	window.prerenderReady = false;
 	let t = Template.instance();
   t.state = new ReactiveDict();
 	t.hidden = new ReactiveVar();
@@ -176,6 +177,7 @@ Template.blogIt.events({
 });
 
 Template.blogTags.onCreated(function () {
+	window.prerenderReady = false;
 	let t = Template.instance();
   t.tags = new ReactiveVar();
 	Meteor.call('blog.aggregate.tags',(e,r)=>{		
@@ -202,6 +204,7 @@ Template.blogTags.events({
 });
 
 Template.blogContent.onCreated(function () {
+	window.prerenderReady = false;
 	let t = Template.instance();
 	t.ready = new ReactiveVar();
 	t.limit = new ReactiveVar(16);
@@ -232,8 +235,10 @@ Template.blogContent.helpers({
 	posts(){
 		let t = Template.instance();
 		let data = MeteorBlogCollections.Blog.find({scheduledAt: {$lt: new Date()}, draft:{$ne: true}},{sort: {createdAt: -1}});
-		if (!data) t.ready.set();
-		//console.log('[blogContent.helpers] data', data, this);
+		if (!data.count()) 
+			t.ready.set();
+		else
+			window.prerenderReady = true;
 		return data;
 	},		
 	htmlCut(){
@@ -247,7 +252,6 @@ Template.blogContent.helpers({
 		if (this.image && this.image.length)
 			url = this.image[0];
 		url = $('img', $(this.html)).attr('src') || url || 'https://res.cloudinary.com/orangry/image/upload/c_thumb,w_600,g_face/v1553633438/hundredgraphs/news.jpg';
-		url = url.replace(/upload/,'upload/c_thumb,w_200,g_face');
 		if (Session.get('debug')) console.log('[blogContent.helpers] img', url, this);
 		return url;
 	}
@@ -293,6 +297,7 @@ Template.blogContent.events({
 });
 
 Template.blogImage.onCreated(function () {
+	window.prerenderReady = false;
 	let t = Template.instance();	
 	let params = {caller: 'blogImage.onCreated', pushit: this._id};
 	PostSubs.subscribe('blogimages', params);
@@ -309,6 +314,8 @@ Template.blogImage.helpers({
 });
 
 Template.blogPost.onCreated(function () {
+	window.prerenderReady = false;
+	$("html, body").animate({ scrollTop: 0 }, "slow");
 	window.prerenderReady = false;
 	let t = Template.instance();
 	t.mediumeditor = new ReactiveVar();
@@ -402,10 +409,13 @@ Template.blogPost.helpers({
 		if (Session.get('debug')) console.log('blogpost data', data, this);
 		t.blog.set(data);
 		let title = 'HundredGraphs, visualize your IoT data.';
-		if (data)
+		if (data){
 			SEO.set({
 				title: 'Blog Post. ' + data.title + ' ' + title
-			});
+			});		
+			window.prerenderReady = true;
+		}
+
 		return data;
 	},		
 	img(){
@@ -529,6 +539,7 @@ Template.blogPost.events({
 });
 
 Template.blogBottom.onCreated(function () {
+	window.prerenderReady = false;
 	let t = Template.instance();
 	t.ready = new ReactiveVar();
 	t.limit = new ReactiveVar(16);
@@ -587,6 +598,7 @@ Template.blogBottom.events({
 });
 
 Template.blogEdit.onCreated(function () {
+	window.prerenderReady = false;
 	let t = Template.instance();
 	t.mediumeditor = new ReactiveVar();
   
@@ -749,6 +761,7 @@ Template.blogEdit.events({
 });
 
 Template.blogQueue.onCreated(function () {
+	window.prerenderReady = false;
 	var tags;
 	let t = Template.instance();
 	
@@ -1008,6 +1021,7 @@ Template.blogSettings.events({
 });
 
 Template.blogImages.onCreated(function () {
+	window.prerenderReady = false;
 	let t = Template.instance();
   t.state = new ReactiveDict();
 	t.vrloading = new ReactiveVar();
@@ -1274,6 +1288,7 @@ Template.blogImagesAdd.helpers({
 });
 
 Template.blogAggregated.onCreated(function () {
+	window.prerenderReady = false;
 	window.prerenderReady = false;
 	let t = Template.instance();
 	t.mediumeditor = new ReactiveVar();
