@@ -42,30 +42,27 @@ Meteor.publish('blog', function(params) {
 	params.limit = params.limit || 16;
 	
 	var list = {};
-	var options = {sort: {createdAt: -1}, limit: params.limit};
-	if (params.blog)
+	var options = {sort: {scheduledAt: -1}, limit: params.limit};
+	if (params.blog) {
 		list = {draft: false, scheduledAt: {$lt: new Date()}};
-	else if (params._id)
+		if (params.tag)
+			list.tags = params.tag;
+	}	else if (params.aggregated) {
+		list = {aggregated: true, blacklist: false};
+	} else if (params._id)
 		list = params._id;	
 	else if (params.postid)
 		list = {postid: params.postid};
-	else if (params.blog){
-		list = {draft: {$ne: true}};	
-		if (params.tag)
-			list.tags = params.tag;
-	}	else if (params.all && Roles.userIsInRole(this.userId, ['admin'], 'admGroup'))
+	else if (params.all && Roles.userIsInRole(this.userId, ['admin'], 'admGroup'))
 		list = {};	
-	else if (params.aggregated) {
-		list = {aggregated: true, blacklist: false};
-		options = {sort: {'posted.date': -1}, limit: params.limit};
-	} else if (Roles.userIsInRole(this.userId, ['admin'], 'admGroup'))
+	else if (Roles.userIsInRole(this.userId, ['admin'], 'admGroup'))
 		list = {};
 	else
 		list = {userId: this.userId};
 	
 	var data = MeteorBlogCollections.Blog.find(list, options);
 	if (params.debug) 
-		console.log('publush pushit', params, this.userId, list, data.count(), '\n');
+		console.log('[publish] blog', params, this.userId, list, data.count(), '\n');
 
 	return data;
 });

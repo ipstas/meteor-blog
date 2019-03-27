@@ -2,6 +2,39 @@ import 'jquery-ui-bundle';
 import 'jquery-ui-bundle/jquery-ui.css';
 //import 'meteor/aldeed:autoform-bs-datetimepicker';
 
+export const infCheck = function (t){
+	$('#infiniteCheck').each(function(i){
+		var t = $(this);
+		if(t.offset().top - $(window).scrollTop() < $(window).height() ){
+			console.log('infiniteCheck ', i, this, t, t.id, t.offset().top < $(window).height());
+		}
+		t.limit.set(t.limit.get()+6);
+	});	
+}
+export const checkMore = function (t){
+
+	Meteor.setTimeout(function(){
+		if ($('#infiniteCheck').offset() && $('#infiniteCheck').offset().top - $(window).scrollTop() - $(window).height() < -20){
+			t.limit.set(t.limit.get() + t.next.get());
+			if (Session.get('debug')) console.log('userpanos.onRendered getting next limit 0:', t.ready.get(), t.limit.get(), t.next.get(), t.loaded.get(), $('#infiniteCheck').offset().top - $(window).scrollTop() - $(window).height());
+		}	
+	},500);
+}
+export const checkMoreOld = function(t){
+	//if (Session.get('debug')) console.log('checkMore func', t.limit.get() - t.next.get() <= t.loaded.get(), t.limit.get(), t.next.get(), t.loaded.get());
+	
+	return console.log('[checkMore]');
+	
+	if (t.limit.get() - t.next.get() <= t.loaded.get())
+		Meteor.setTimeout(function(){
+			if ($('#infiniteCheck').offset() && $('#infiniteCheck').offset().top - $(window).scrollTop() - $(window).height() < -20){
+				t.limit.set(t.limit.get() + t.next.get());
+				if (Session.get('debug')) console.log('userpanos.onRendered getting next limit 0:', t.ready.get(), t.limit.get(), t.next.get(), t.loaded.get(), $('#infiniteCheck').offset().top - $(window).scrollTop() - $(window).height());
+				FlowRouter.setQueryParams({more: t.limit.get()});
+			}	
+		},500);
+}
+
 export const imgOnScroll = function(){
 	Meteor.setTimeout(function(){
 		$('img[realsrc]').each(function(i){
@@ -160,18 +193,5 @@ export const dragImg = function (){
 	});
 
 }
-export const checkMore = function(t){
-	//if (Session.get('debug')) console.log('checkMore func', t.limit.get() - t.next.get() <= t.loaded.get(), t.limit.get(), t.next.get(), t.loaded.get());
-	
-	return console.log('[checkMore]');
-	
-	if (t.limit.get() - t.next.get() <= t.loaded.get())
-		Meteor.setTimeout(function(){
-			if ($('#infiniteCheck').offset() && $('#infiniteCheck').offset().top - $(window).scrollTop() - $(window).height() < -20){
-				t.limit.set(t.limit.get() + t.next.get());
-				if (Session.get('debug')) console.log('userpanos.onRendered getting next limit 0:', t.ready.get(), t.limit.get(), t.next.get(), t.loaded.get(), $('#infiniteCheck').offset().top - $(window).scrollTop() - $(window).height());
-				FlowRouter.setQueryParams({more: t.limit.get()});
-			}	
-		},500);
-}
+
 

@@ -41,6 +41,10 @@ Package.onUse(function(api) {
 		'mediumeditor:mediumeditor'
 	]);
 	
+	api.addFiles([
+		'client/blog.css',
+	], 'client');
+	
 });
 
 Package.onTest(function(api) {

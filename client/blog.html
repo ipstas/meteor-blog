@@ -16,9 +16,8 @@
 		</section>
 	{{/if}}
 	<section id="blogIt" class="animated fadeIn">
-		{{#with selector}}
-			{{> Template.dynamic template=val data=push}}
-		{{/with}}
+<!-- 		{{> Template.dynamic template=selector.val data=push}} -->
+		{{>blogContent}}
 	</section>
 </template>
 
@@ -31,26 +30,25 @@
 </template>
 
 <template name="blogContent">
-	<section id="blogContent" class="">
+	<section id="blogContent" class="animated fadeIn">
 		{{#with tag}}
-			<div class="row {{grayscale}}">	
+			<div class="row">	
 				<div class="col-12 h1">
 					<div class="badge badge-info">{{this}}</div>
 				</div>
 			</div>
 		{{/with}}
 
-		<div class="row {{grayscale}}">
+		<div class="row ">
 			{{#each posts}}		
-				<div class="col-12 col-sm-6 col-md-4 p-3">
-					<div id="mediumimg" class="img-fluid">
-	<!-- 					{{>blogImage}} -->
+				<div class="col-12 col-sm-6 col-md-4 p-3 animated fadeInUp blogPost">
+					<div id="" class="mediumimg">
 						<a href="/blog/post/{{postid}}"><img src="{{img}}" class="thumbnail img-fluid" /></a>
 					</div>
-					<div id="mediumtitle" class="mediumtitle h4 p-2">
+					<div id="" class="mediumtitle h4 p-2">
 						<a href="/blog/post/{{postid}}">{{title}}</a>
 					</div>
-					<div id="mediumtext" class="mediumtext p-2">
+					<div id="" class="mediumtext p-2">
 						{{{htmlCut}}}
 					</div>
 				</div>		
@@ -65,7 +63,15 @@
 				{{/unless}}
 			{{/each}}
 		</div>
+
+		<div class="row align-items-center justify-content-center">
+			<div class="col-auto p-3">
+				<div id="infiniteCheck" class="loadMore linkwhitewhite pointer toOne"><i class="fa fa-chevron-circle-down fa-5x" aria-hidden="true"></i></div>
+			</div>
+		</div>
+
 	</section>
+
 </template>
 
 <template name="blogImage">
@@ -74,7 +80,7 @@
 
 <template name="blogPost">
 	{{#if isInRole 'admin' 'admGroup'}}
-		<section id="menupick" class="container-fluid text-center  animated fadeIn">
+		<section id="menupick" class="text-center animated fadeIn">
 			<div class="row">
 				<div class="col-auto">
 					<div class="btn-group" role="group" aria-label="Blog Content Type">
@@ -88,24 +94,21 @@
 			</div>
 		</section>
 	{{/if}}
-	<section id="blogPost" class="container-fluid animated fadeInLeft blog">
-		<div class="row text-left align-items-center justify-content-center animated fadeIn">				
+	<section id="blogPost" class="animated fadeIn blogPost">
+		<div class="row text-left align-items-center justify-content-center ">				
 			<div class="col-md-8 col-12">					
-				{{#with post}}
-				
-					<div class="row {{grayscale}}">				
+				{{#with post}}		
+					<div class="row">				
 						<div class="col-12">
 							<img src="{{img}}" border="0" align="left" class="img-fluid"/>
 						</div>
-					</div>	
-						
-					<div class="row {{grayscale}}">		
+					</div>						
+					<div class="row">		
 						<div class="col-12">
 							<h2>{{title}}</h2>
 						</div>
-					</div>					
-					
-					<div class="row {{grayscale}} small text-muted pb-3">		
+					</div>									
+					<div class="row small text-muted pb-3">		
 						<div class="col-12">
 							<div class=""><br/>Published on {{date}} by {{creator.name}} </div> 
 							{{#if aggregated}}
@@ -138,8 +141,7 @@
 						<div class="col-xs-12">
 							{{{html}}}
 						</div>	
-					</div>			
-					
+					</div>							
 					<div class="row">	
 						<div class="col-xs-12">
 							{{#each tags}}
@@ -150,15 +152,13 @@
 				{{/with}}
 			</div>	
 		</div>					
-	</section>
-	
+	</section>	
 	{{>blogBottom}}
-	
 </template>
 
 <template name="blogBottom">
-	<section id="blogBottom" class="container-fluid animated fadeInLeft blog">
-		<div class="row text-left align-items-center justify-content-center animated fadeIn">		
+	<section id="blogBottom" class="animated fadeInLeft">
+		<div class="row text-left align-items-center justify-content-center">		
 			<div class="col-12 col-sm-6 col-md-4 p-5">
 				<div id="blogLikes" class="h2 text-muted">
 					<i class="pointer fa fa-thumbs-o-up up" aria-hidden="true"></i> people			
@@ -166,7 +166,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="row text-left align-items-center justify-content-center animated fadeIn">		
+		<div class="row text-left align-items-center justify-content-center">		
 			{{#each posts}}		
 				<div class="col-12 col-sm-6 col-md-4 p-5">
 					<div id="mediumimg" class="img-fluid">
@@ -530,8 +530,8 @@
 </template>
 
 <template name="blogAggregated">
-	<section id="blogAggregated" class="">
-		<div class="row align-items-center justify-content-center animated fadeIn">		
+	<section id="blogAggregated" class=" animated fadeIn">
+		<div class="row align-items-center justify-content-center">		
 			<div class="col-12 col-md-8 ">				
 				{{> quickForm schema=schema id="pullMediumForm" doc=formdefault afFieldInput-placeholder="schemaLabel" type="method" meteormethod="social.medium.pull.request"}}			
 			</div>
@@ -560,16 +560,22 @@
 						getting blog posts
 					</div>
 				{{else}}
-					<div class="col-8 animated fadeIn text-center">
+					<div class="col-12 com-md-4 animated fadeIn text-center">
 						No new posts were discovered
 					</div>					
-					<div class="col-4 animated fadeIn">
+					<div class="col-12 col-md-4 animated fadeIn">
 						<img src="https://res.cloudinary.com/orangry/image/upload/v1553669638/hundredgraphs/no_news.jpg" class="img-fluid"/>
 					</div>
 				{{/unless}}
 			{{/each}}
 		</div>
-
+		{{#if ready}}
+			<div class="row align-items-center justify-content-center">
+				<div class="col-auto p-3">
+					<div id="infiniteCheck" class="more linkwhitewhite pointer toOne"><i class="fa fa-chevron-circle-down fa-5x" aria-hidden="true"></i></div>
+				</div>
+			</div>
+		{{/if}}
 	</section>
 </template>
 

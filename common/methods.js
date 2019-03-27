@@ -336,6 +336,7 @@ Meteor.methods({
 					if (creator > 1)
 						MeteorBlogCollections.BlogUsers.update({creatorId: post.creatorId},{addToSet:{services: 'medium'}});
 
+					post.updatedAt = post.updatedAt || post.createdAt;
 					doc = {
 						aggregated: true, 
 						blacklist: false,
@@ -351,6 +352,8 @@ Meteor.methods({
 					};			
 					if (post.virtuals.previewImage.imageId)
 						doc.image = ['https://cdn-images-1.medium.com/max/1200/' + post.virtuals.previewImage.imageId ];
+					else
+						doc.image = ['https://res.cloudinary.com/orangry/image/upload/c_thumb,w_600,g_face/v1553633438/hundredgraphs/news.jpg'];
 
 					inserted = MeteorBlogCollections.Blog.insert(doc);
 					console.log('[social.medium.pull.tag] inserted:', post.id, post.title, inserted);
