@@ -1,0 +1,514 @@
+<template name="blogIt">
+	{{#if isInRole 'admin' 'admGroup'}}
+		<section id="menupick" class="container-fluid text-center  animated fadeIn">
+			<div class="row">
+				<div class="col-auto">
+					<div class="btn-group" role="group" aria-label="Blog Content Type">
+						{{#each typeBtn}}
+							<button type="button" id="{{id}}" {{disabled}} class="btn btn-outline-{{color}} typeBtn">{{title}}</button>
+						{{/each}}
+					</div>				
+				</div>
+			</div>
+		</section>
+	{{/if}}
+	<section class="container-fluid content-section animated fadeIn">
+		{{#with selector}}
+			{{> Template.dynamic template=val data=push}}
+		{{/with}}
+	</section>
+</template>
+
+<template name="blogContent">
+	<section id="blogContent" class="">
+		<div class="row {{grayscale}}">
+			{{#each posts}}		
+				<div class="col-12 col-sm-6 col-md-4">
+					<div id="mediumimg" class="img-fluid">
+	<!-- 					{{>blogImage}} -->
+						<a href="/blog/post/{{postid}}"><img src="{{img}}" class="img-fluid" /></a>
+					</div>
+					<div id="mediumtitle" class="mediumtitle h4 p-2">
+						<a href="/blog/post/{{postid}}">{{title}}</a>
+					</div>
+					<div id="mediumtext" class="mediumtext p-2">
+						{{{htmlCut}}}
+					</div>
+				</div>		
+			{{else}}
+				{{#unless ready}}
+					<div class="col-12 h2 text-center p-5">
+						<div class="pointer spinner-border text-primary abscenter" role="status">
+							<span class="sr-only">getting data ready</span>
+						</div>		
+						getting blog posts
+					</div>
+				{{/unless}}
+			{{/each}}
+		</div>
+	</section>
+</template>
+
+<template name="blogImage">
+	<img src="{{img}}" class="img-fluid" />
+</template>
+
+<template name="blogPost">
+	{{#if isInRole 'admin' 'admGroup'}}
+		<section id="menupick" class="container-fluid text-center  animated fadeIn">
+			<div class="row">
+				<div class="col-auto">
+					<div class="btn-group" role="group" aria-label="Blog Content Type">
+						{{#each typeBtn}}
+							<a href="/blog?select={{id}}">
+								<button type="button" id="{{id}}" {{disabled}} class="btn btn-outline-{{color}} typeBtn">{{title}}</button>
+							</a>
+						{{/each}}
+					</div>				
+				</div>
+			</div>
+		</section>
+	{{/if}}
+	<section id="blogPost" class="container-fluid animated fadeInLeft blog">
+		<div class="row text-left align-items-center justify-content-center animated fadeIn">				
+			<div class="col-md-8 col-12">					
+				{{#with post}}
+				
+					<div class="row {{grayscale}}">				
+						<div class="col-12">
+							<img src="{{img}}" border="0" align="left" class="img-fluid"/>
+						</div>
+					</div>	
+						
+					<div class="row {{grayscale}}">		
+						<div class="col-12">
+							<h2>{{title}}</h2>
+						</div>
+					</div>					
+					
+					<div class="row {{grayscale}} small text-muted pb-3">		
+						<div class="col-12">
+							<div class=""><br/>Published on {{date}} by {{creator.name}} </div> 
+							{{#if aggregated}}
+								<!-- <div class="">@{{creator.creatorUser}}/{{postid}}</div> -->
+								<div class="">at <a href="{{original}}" target=_blank>{{original}}</a></div>
+								{{#if isInRole 'admin' 'admGroup'}}
+									<div class="row">	
+										<div class="col-auto">
+											<div class="custom-control custom-switch">
+												<input type="checkbox" class="custom-control-input" {{checkedUser}} id="ban">
+												<label class="custom-control-label" for="ban">Ban</label>
+											</div>		
+										</div>		
+										<div class="col-auto">
+											<div class="custom-control custom-switch">
+												<input type="checkbox" class="custom-control-input" {{checkedDraft}} id="draft">
+												<label class="custom-control-label" for="draft">Publish</label>
+											</div>
+										</div>
+									</div>
+									<div class="col-auto">
+										<a href="/blog?select=edit&push={{_id}}"><div class="btn btn-sm btn-info">Edit</div></a>
+									</div>
+								{{/if}}
+							{{/if}}
+						</div>
+					</div>
+					
+					<div class="row">	
+						<div class="col-xs-12">
+							{{{html}}}
+						</div>	
+					</div>			
+					
+					<div class="row">	
+						<div class="col-xs-12">
+							{{#each tags}}
+								<div class="label label-default">#{{this}}</div> 
+							{{/each}}
+						</div>	
+					</div>					
+					
+
+			
+				{{/with}}
+			</div>	
+		</div>					
+	</section>
+</template>
+
+<template name="blogEdit">
+
+		<div class="row">
+			<div class="col-12 animated fadeIn text-center ">
+				{{#each services}}
+					<div class="button btn btn-{{active}} btn-sm service connect{{service}}" rel="publisher" data-toggle="tooltip" title="connect to {{service}}">
+						<i class="connected fa fa-{{service}}"></i>
+					</div>
+				{{/each}}
+				<div class="button btn btn-{{activetele}} btn-sm service connecttelegram" rel="publisher" data-toggle="tooltip" title="connect to telegram">
+					<i class="connected fa fa-telegram"></i>
+				</div>
+			</div>
+		</div>
+		<br/><br/>
+		<div class="row {{grayscale}}">
+			<div class="col-12">
+				<div id="mediumtitle" class="mededitable mediumtitle h3 p-2">
+
+				</div>
+				<div id="mediumtext" class="droppable mededitable mediumtext p-2">
+
+				</div>
+			</div>
+		</div>
+
+		<div class="row animated fadeIn">
+			<div class="col-12">
+				{{#autoForm collection=collection schema=schema id="datePushForm" doc=this afFieldInput-placeholder="schemaLabel" type="normal" }}
+					{{> afQuickField name='_id' type="hidden"}}
+					{{> afQuickField name='postid' type="hidden"}}
+<!-- 					{{> afQuickField name='tags' label='tags' afFieldInput-placeholder="schemaLabel" }} -->
+					<div class="row animated fadeIn">
+						<div class="col-auto">
+							{{> afQuickField name='scheduledAt' label='Scheduled at' }}
+						</div>	
+						<div class="col-auto">
+							{{> afQuickField name='draft' afFieldInput-placeholder="schemaLabel" }}
+						</div>
+						<div class="col-auto">
+							<button class="btn btn-primary schedule" type="submit">OK</button>
+						</div>
+					</div>
+				{{/autoForm}}
+			</div>
+		</div>	
+		<br/>
+		{{> blogImages}}
+
+	<br/><br/>
+	<div class="row {{grayscale}}">
+		<div class="col-12 fontlarge20">
+			<div class="btn btn-info btn-lg newpush" href="#" data-toggle="tooltip" title="Click to create new Push">New</div>
+		</div>
+	</div>
+</template>
+
+<template name="blogQueue">
+	<section id="blogQueue">
+	{{#each push}}
+		<div class="row ">		
+			<div class="col-xs-4 col-md-2 col-md-offset-2 {{ifHidden}} text-left fontlarger " id="{{title}}">
+				<a href="/blog?select=edit&push={{_id}}">{{title}}</a>
+			</div>			
+			<div class="col-xs-6 col-md-6 text-left ">
+				{{{html}}}
+			</div>			
+			<div class="col-xs-2 col-md-2 text-left ">
+				<div class="pointer button btn btn-danger remove" href="#" data-toggle="tooltip" title="Click to remove Push">Remove</div><br/>
+				Scheduled at: <br/>
+				{{service}}<br/>
+				{{scheduledAt}}
+			</div>
+		</div>
+		<hr/>
+	{{/each}}
+	</section>
+</template>
+
+<template name="blogStatus">
+	<section id="blogStatus">
+	{{#each push}}
+		<div class="row ">
+			<div class="col-xs-3 col-sm-2 col-md-offset-2 {{ifHidden}} text-left h2 " id="{{title}}">
+				{{title}}
+			</div>
+			<div class="col-xs-5 col-sm-4 text-left ">
+				{{{htmlCut}}}
+			</div>
+			<div class="col--xs-4 col-sm-4 text-left ">
+				{{#each posted}}
+					<div>
+						<a href="{{url}}" target=_blank>{{service}}</a> {{date}}
+					</div>
+				{{/each}}
+			</div>
+		</div>
+		<hr/>
+	{{else}}
+		<div class="row ">
+			<div class="col-xs-12">
+				Nothing was pushed yet
+			</div>
+		</div>
+	{{/each}}
+	</section>
+</template>
+
+<template name="blogSettings">
+	<section id="blogSettings">
+	<div class="row text-center">
+		<div class="col-xs-3"> 
+				Account
+		</div>
+		<div class="col-xs-2"> 
+				Connect
+		</div>
+		<div class="col-xs-4"> 
+				Settings
+		</div>
+		<div class="col-xs-3"> 
+				Extras
+		</div>
+	</div>
+	{{#each services}}
+		<div class="row text-center fontsmaller">
+			<div class="col-xs-3 "  id="{{_id}}"> 
+				<div class="button btn btn-primary btn-sm connect{{service}}" rel="publisher" data-toggle="tooltip" title="connect to {{service}}">	
+					<i class="connected fa fa-{{service}}"></i>
+				</div>
+			</div>
+			<div class="col-xs-2"> 
+				{{#if connected}}
+					<a class="disconnect fontlarger" id="{{service}}"  href="{{url}}" target=_blank>
+						<i class="toconnect fa fa-check-square"></i>
+					</a>
+				{{else}}
+					<a class="connect fontlarger" id="{{service}}"  href="{{url}}" target=_blank>
+						<i class="pointer toconnect fa fa-square-o connect{{service}}"></i>
+					</a>								
+				{{/if}}
+			</div>
+			<div class="col-xs-4"> 
+				{{#if connected}}
+					{{#if $eq service 'facebook'}}
+<!-- 								{{facebook}}
+						{{> quickForm id="privacyForm2" schema=schema doc=facebook type="method" meteormethod="user.privacy.facebook" template="bootstrap3-inline" afFieldInput-placeholder="schemaLabel"}} -->
+						{{#autoForm id="settingsFBForm" template="bootstrap3" doc=facebook schema=schema type="method" meteormethod="blog.settings.facebook" autosave=true}}
+							{{> afFormGroup name="privacy" type="select" }}	
+							{{> afFormGroup  name="account" type="select" options=options}}	
+						{{/autoForm}}
+					{{/if}}
+				{{/if}}
+			</div>
+			<div class="col-xs-3"> 
+					{{#if $eq service 'facebook'}}
+						{{facebook.role}}
+					{{/if}}
+			</div>
+		</div> 
+		{{#if $eq service 'facebook'}}
+			{{#if connected}}
+				<div class="row text-left">
+					<div class="col-xs-12"> 
+						{{#if facebook.messenger}}
+							<span>FB messenger connected</span>
+						{{else}}
+							To connect FB Messenger send us a message "<b>connect</b>" at <a href="https://www.facebook.com/VirGO360VR/messages" target=_blank>VirGO 360 page</a>
+							After you have Messenger connected you will be able to receive comments there.
+						{{/if}}
+					</div>	
+				</div>
+			{{/if}}
+		{{/if}}
+	{{/each}}
+	
+	<div class="row text-center fontsmaller">
+		<div class="col-xs-3 "  id="{{_id}}"> 
+			<div class="button btn btn-primary btn-sm connecttelegram" rel="publisher" data-toggle="tooltip" title="connect to telegram">	
+				<i class="connected fa fa-telegram"></i>
+			</div>
+		</div>
+		<div class="col-xs-2">
+			{{#if teleconnected}}
+				<a class="disconnect fontlarger" id="telegram"  href="{{url}}" target=_blank>
+					<i class="toconnect fa fa-check-square"></i>
+				</a>
+			{{else}}
+				<a class="connect fontlarger" id="telegram"  href="{{url}}" target=_blank>
+					<i class="pointer toconnect fa fa-square-o connect{{service}}"></i>
+				</a>								
+			{{/if}}
+		</div>
+		<div class="col-xs-4"> 
+			{{#if showTele}}
+				{{#autoForm collection="Meteor.users" doc=user id="telegramForm" type="update" autosave=true
+					template="bootstrap3-inline" label=false label-class="sr-only" afFieldInput-placeholder="schemaLabel"
+				}}
+					{{> afQuickField name='services.telegram.channel' placeholder='telegram channel name' label-class="sr-only" }}
+					{{> afQuickField name='services.telegram.token' placeholder='channel token' label-class="sr-only" }}
+					<button type="submit" class="btn btn-default" data-dismiss="modal">Update</button>
+				{{/autoForm}}						
+			
+			
+			{{/if}}
+		</div>
+		<div class="col-xs-3"> 
+
+		</div>
+	</div> 
+
+	<div class="row">	
+		<div class="col-xs-12 animated zoomIn red">
+			{{errorState}}
+		</div>
+	</div>
+	{{#if on_connected}}
+		<div>
+			Let's switch on autopublish. Every your new picture will be published to <b><span class="cursor autopublish">{{on_connected}}</span></b>
+		</div>
+	{{/if}}
+	
+	<div class="row">
+		<div class="col-md-12">
+			{{#if $eq editselector "newRecord"}}		
+				{{> quickForm collection="Faq" type="insert" id="insertFaqForm" label=false label-class="hidden" afFieldInput-placeholder="schemaLabel" }}				
+			{{else}}
+
+				<button id="newRecord" class="button btn btn-info editselector">new</button>
+
+			{{/if}}
+		</div>
+	</div>
+	</section>
+</template>
+
+<template name="blogImages">
+	<section id="blogImages" class="animated fadeIn">
+	{{#if loaded}}
+		<div class="row">
+			<div class="col-md-12 animated fadeIn text-left fontsmaller">
+				{{#each tags}}
+					<span class="label label-info selectTags">{{tag}}</span>
+				{{/each}}
+			</div>		
+			<div class="col-md-12 animated fadeIn text-left fontsmaller">	
+				<br/>
+			</div>
+			<div class="col-md-12 animated zoomIn text-left fontsmaller">
+				<span class="pointer linkblue updateTag">Update tag on selected</span>
+				Sorted by {{sorted}}
+				{{#if selectUsed}}
+					| <span class="animated fadeIn">Shown unused images ONLY</span> 
+				{{/if}}
+				{{#if selectTag}}
+					| shown only 
+					{{#each selectTag}}
+						<span class="{{this}} label label-info tag removeTag pointer linkblue fontsmall"  id="{{this}}">{{this}}</span>&nbsp;
+					{{/each}}
+				{{/if}}
+			</div>
+		</div>
+	{{/if}}
+	<div id="selectablePanos" class="row ">
+<!-- 		{{#unless loaded}}
+			<div class="col-xs-12 animated zoomIn">
+				<br/>
+				<div class="jumbotron btn-default">
+					Start with uploading your 360 panoramas. <br/>
+					Click on a cloud icon and select files <br/>
+					Or drag and drop panoramas on the cloud icon
+				</div>
+			</div>
+		{{else}}
+
+		{{/unless}} -->
+		
+		<div class="col-xs-4 col-sm-3 col-md-2 animated zoomIn ">
+			{{> blogImagesAdd}}
+		</div>		
+		
+		{{#each images}}		
+			<div class="col-xs-4 col-sm-3 col-md-2 animated zoomIn ">
+				<div class="scenemenuTop animated fadeInUp linkwhitewhite fontlarge20 gradient nonselectable"><span class="badge pointer viewImg" data-toggle="tooltip" title="this image was used {{usedTimes}} in pushs">{{usedTimes}}</span></div>
+				<img src="{{dataImg}}" id="{{_id}}" alt="{{_id}}" title="{{file}}" class="mediumdrag pointer img-responsive viewPano img100 animated zoomIn {{gray}} nonselectable " />
+				<div class="img100 selectablePano" alt="{{_id}}">
+<!-- 					<input type="checkbox" alt="{{_id}}" class="checkedBox"/>  -->
+					<span class="fontsmaller panoId" alt="{{_id}}">{{file}}</span>
+				</div>
+<!-- 				<button class="publish btn-info">Publish</button>
+				<button class="remove btn-warning">Remove</button>	 -->
+				<div class="img100 nonselectable">
+					<i class="pointer fa fa-check fa-3x publish text-info" aria-hidden="true" data-toggle="tooltip" title="use in push"></i>
+					<i class="pointer fa fa-trash fa-3x remove text-warning" aria-hidden="true" data-toggle="tooltip" title="remove pano"></i>
+				</div>
+				{{#if showAdv}}
+					{{date}}
+					{{#each tags}}{{this}}, {{/each}} <br/>
+				{{/if}}
+				<br/>
+			</div>	
+		{{/each}}
+	</div>
+	
+	<div class="row">	
+		<div class="col-md-12 animated zoomIn text-center card">
+			{{#if isReady}}
+				{{#if isMore}}
+					<button id="infiniteCheck" class="btn btn-info"><i class="fa fa-caret-down" aria-hidden="true"></i></button>
+				{{else}}
+					<button class="btn btn-info done"><i class="fa fa-check" aria-hidden="true"></i></button>		
+				{{/if}}
+			{{else}}
+				<button class="btn btn-info"><i class="fa fa-spinner fa-spin"></i></button>		
+				<span class="sr-only">Loading...</span>
+			{{/if}}
+		</div>
+	</div>
+	</section>
+</template>
+
+<template name="blogImagesAdd">
+	<section id="blogImagesAdd">
+	<div class="animated fadeIn hovspan img100 panoUpload">	
+		{{#autoForm collection=collection schema=schema id="insertPushImagesForm" afFieldInput-placeholder="schemaLabel" type="insert"}}
+			<fieldset data-toggle="tooltip" title="upload new images for blog">
+				{{> afQuickField name='url' folder='blog' autosave=true advanced=true tags="blog" button=false label=false}}
+				{{#if url}} 
+					<button type="submit" class="btn btn-block btn-default">OK</button>
+				{{/if}}
+			</fieldset>
+		{{/autoForm}}		
+<!-- 		<span class="whitewhite animated zoomIn">Upload new push images</span> -->
+	</div>
+	</section>
+</template>
+
+<template name="blogAggregated">
+	<section id="blogAggregated" class="">
+		<div class="row align-items-center justify-content-center animated fadeIn">		
+			<div class="col-12 col-md-8 ">				
+				{{> quickForm schema=schema id="pullMediumForm" doc=formdefault afFieldInput-placeholder="schemaLabel" type="method" meteormethod="social.medium.pull.request"}}			
+			</div>
+		</div>
+		<div class="h3">Draft Aggregated Posts</div>
+		<div class="row {{grayscale}}">
+			{{#each posts}}		
+				<div class="col-12 col-sm-6 col-md-4 pb-5">
+					<div id="mediumimg" class="img-fluid">
+						<a href="/blog/post/{{postid}}"><img src="{{img}}" class="img-fluid" /></a>
+					</div>
+					<div id="mediumtitle" class="mediumtitle h4 p-2">
+						<a href="/blog/post/{{postid}}">{{title}}</a>
+					</div>
+					<div id="mediumtext" class="mediumtext p-2">
+						{{{htmlCut}}}
+					</div>
+					<div class="btn btn-sm btn-danger remove">Remove</div> <div class="btn btn-sm btn-danger ban">Ban</div>
+				</div>		
+			{{else}}
+				{{#unless ready}}
+					<div class="col-12 h2 text-center p-5">
+						<div class="pointer spinner-border text-primary abscenter" role="status">
+							<span class="sr-only">getting data ready</span>
+						</div>		
+						getting blog posts
+					</div>
+				{{/unless}}
+			{{/each}}
+		</div>
+
+	</section>
+</template>
+
+
