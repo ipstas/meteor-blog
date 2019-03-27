@@ -286,10 +286,32 @@ Meteor.methods({
 		return pushitres;
 	},
 
+	'blog.aggregate.tags'(params){
+		if (Meteor.isClient) return;
+		let pipeline = [
+		{$facet: {
+			"tags": [
+				{ $unwind: "$tags" },
+				{ $sortByCount: "$tags" }
+			],}
+		}];
+/* 		pipeline = [
+			{ $unwind: "$tags"},
+			{ $group:{
+					_id: "$tags",
+					count: {$sum: 1}
+			}},
+			{ $sort: {count: -1}}
+		]; */
+		let data = MeteorBlogCollections.Blog.rawCollection().aggregate(pipeline).toArray();
+		return data;
+	},
+	
 	'social.medium.pull.tag'(params){
+		if (Meteor.isClient) return;
 		this.unblock;
 		params = params || {};
-		var res, json, n = 1, creator, doc;
+		var res, json, creator, doc, inserted;
 		let date = new Date();
 		//console.log('[social.medium.pull.tag]', params, '\n\n');
 
@@ -300,8 +322,9 @@ Meteor.methods({
 				});			
 				res = await res.content.split('window["obvInit"]')[4].split('// ]]')[0].slice(1,-1).slice(0,-1);
 				json = await JSON.parse(res);
+				let n = 0;
 				
-				await _.each(json.references.Post, (post)=>{			
+				await _.each(json.references.Post, (post)=>{		
 					if (post.detectedLanguage != 'en') 
 						return console.warn('[social.medium.pull.tag] lang:', post.detectedLanguage, post.title);
 					else if ( MeteorBlogCollections.BlogUsers.find({creatorId: post.creatorId, ban: true},{limit: 1}).count() ) 
@@ -329,10 +352,11 @@ Meteor.methods({
 					if (post.virtuals.previewImage.imageId)
 						doc.image = ['https://cdn-images-1.medium.com/max/1200/' + post.virtuals.previewImage.imageId ];
 
-					MeteorBlogCollections.Blog.insert(doc);
+					inserted = MeteorBlogCollections.Blog.insert(doc);
+					console.log('[social.medium.pull.tag] inserted:', post.id, post.title, inserted);
 					n++;
 				});
-				await console.log('[social.medium.pull.tag]:', Date.now() - date, json.success, 'posts:', (_.toArray(json.references.Post)).length, 'inserted:', n, '\n\n');
+				await console.log('[social.medium.pull.tag]:', Date.now() - date, 'msec', 'posts:', (_.toArray(json.references.Post)).length, 'inserted:', n, '\n\n');
 				return await json.payload;
 			} catch (e) {
 				console.warn('ERR social.medium.pull.tag error', e, '\n\n');
@@ -343,6 +367,7 @@ Meteor.methods({
 		return main();
 	},		
 	'social.medium.pull.story'(params){
+		if (Meteor.isClient) return;
 		this.unblock;
 		if (!params) return;
 		var res, json, out, post, updated, httpres;
@@ -409,9 +434,10 @@ Meteor.methods({
 
 	},
 	'social.medium.pull.user'(params){
+		if (Meteor.isClient) return;
 		this.unblock;
 		params = params || {};
-		let reqparams = {}, res, json, updated, user = {};
+		let res, json, updated, user = {};
 		
 		async function main(){
 			try {
@@ -419,62 +445,20 @@ Meteor.methods({
 					params: {q: params.creatorId, format: 'json'}
 				});
 				json = await JSON.parse(res.content.split('</x>')[1]);
-				//return json;
 				user.creatorUser = await json.payload.value.users[0].username;
 				user.creatorName = await json.payload.value.users[0].name;
 				user.creatorAvatar = await json.payload.value.users[0].imageId;			
 				updated = await MeteorBlogCollections.BlogUsers.upsert({creatorId: params.creatorId},{$set: user});
-				await console.log('\n\nsocial.medium.pull.user res inside:', json.success, updated, params.creatorId, user, '\n\n');
+				await console.log('[social.medium.pull.user]:', updated, params.creatorId, user, '\n\n');
 				return await user;
 			} catch (e) {
-				console.warn('social.medium.pull.story getUser error', e);
-				throw new Meteor.Error(400, 'social.medium.pull.story getUser err', e);
+				console.warn('[social.medium.pull.user] error', e);
+				throw new Meteor.Error(400, '[social.medium.pull.user] err', e);
 				return e;
 			}
 		}
 		return main();
 	},	
-	'social.medium.pull.test'(params){
-		this.unblock;
-		params = params || {};
-		var user, reqparams = {}, token, httpres, fbout;
-		var userId = params.userId || this.userId;
-		//if (params.debug) 
-			console.log('\n\n**************************\nsocial.medium.pull.tag', params, '\n\n');
-		//user = Meteor.users.findOne(userId);
-		if (params.draft)
-			params.draft = 'draft'; 		
-		//console.log('social.medium.pull.tag', params);
-		
-		let creatorId = params.q || 'SmartHome';
-		//reqparams.format = 'json' || params.format;
-			
-		async function main(){
-			var res, json, user = {};
-			try {
-				var res = await HTTP.get('https://medium.com/search',{
-					params: {q: creatorId, format: 'json'}
-				});
-				//return await res;
-			} catch (e) {
-				console.warn('social.medium.pull.story getUser error', e);
-				throw new Meteor.Error(400, 'social.medium.pull.story getUser err', e);
-				return e;
-			}
-			var json = await JSON.parse(res.content.split('</x>')[1]);
-			//return json;
-			user.creatorUser = await json.payload.value.users[0].username;
-			user.creatorName = await json.payload.value.users[0].name;
-			user.creatorAvatar = await json.payload.value.users[0].imageId;	
-			await console.log('\n\nsocial.medium.pull.tag res inside:', json.success, json, '\n\n');
-			await MeteorBlogCollections.BlogUsers.upsert({creatorId: creatorId},{$set: user});
-			return await user;
-		}
-		httpres = main();
-		console.log('\n\nsocial.medium.pull.tag res :', httpres, '\n\n');
-		return httpres;
-
-	},		
 
 	//unused
 	'social.medium.pull.request'(params){
@@ -550,50 +534,74 @@ Meteor.methods({
 	},		
 	'social.medium.pull.search'(params){
 		params = params || {};
+		let res, json;
+		async function main(){
+			try {
+				res = await HTTP.get('https://medium.com/search',{
+					params: {q: params.q, format: json}
+				});		
+				if (params.debug) console.log('calling social.medium.pull.search res:', res.content);
+				
+				json = await JSON.parse(res.content.split('</x>')[1]);		
+				if (params.debug) console.log('calling social.medium.pull.search json:', json);
+				
+				await _.each(json.payload.value.posts, (post)=>{
+					if ( PushIt.find({'posted.id': post.id}).count() ) {
+						return console.warn('post with title', post.title, 'is in db already');
+					}
+					console.log('calling social.medium.pull.story for', post.creatorId, post.id, post.title);
+					Meteor.call('social.medium.pull.story', post);
+				});				
+				await console.log('[social.medium.pull.search]:', json, '\n');
+				return await json;
+			}catch(e){
+				console.warn('[social.medium.pull.search] error', e);
+				throw new Meteor.Error(400, '[social.medium.pull.search] err', e);
+				return e;			
+			}
+		};
+		return main();
+	},			
+	'social.medium.pull.test'(params){
+		this.unblock;
+		params = params || {};
 		var user, reqparams = {}, token, httpres, fbout;
 		var userId = params.userId || this.userId;
-		if (params.debug) console.log('\n\n**************************\nsocial.medium.pull.search', params, '\n\n');
+		//if (params.debug) 
+			console.log('\n\n**************************\nsocial.medium.pull.tag', params, '\n\n');
 		//user = Meteor.users.findOne(userId);
 		if (params.draft)
 			params.draft = 'draft'; 		
-		console.log('social.medium.pull.search', params);
+		//console.log('social.medium.pull.tag', params);
 		
-		reqparams.q = params.q || '360panorama';
-		reqparams.format = 'json' || params.format;
+		let creatorId = params.q || 'SmartHome';
+		//reqparams.format = 'json' || params.format;
 			
 		async function main(){
-//			try {
+			var res, json, user = {};
+			try {
 				var res = await HTTP.get('https://medium.com/search',{
-					params: reqparams
+					params: {q: creatorId, format: 'json'}
 				});
-				
-				if (params.debug) console.log('calling social.medium.pull.search res:', res.content);
-				
-				var json = await JSON.parse(res.content.split('</x>')[1]);		
-				if (params.debug) console.log('calling social.medium.pull.search json:', json);
-
-			// } catch (e) {
-				// console.warn('ERR social.medium.pull.search error', e, '\n\n');
-				// throw new Meteor.Error(400, 'social.medium.pull.search err', e);
-				// return e;
-			// }
-			
-			await _.each(json.payload.value.posts, (post)=>{
-								
-				if ( PushIt.find({'posted.id': post.id}).count() ) {
-					return console.warn('post with title', post.title, 'is in db already');
-				}
-				console.log('calling social.medium.pull.story for', post.creatorId, post.id, post.title);
-				Meteor.call('social.medium.pull.story', post);
-				
-			});
-			
-			await console.log('\n\nsocial.medium.pull.search res inside:', json.success, '\n\n');
-			return await json;
+				//return await res;
+			} catch (e) {
+				console.warn('social.medium.pull.story getUser error', e);
+				throw new Meteor.Error(400, 'social.medium.pull.story getUser err', e);
+				return e;
+			}
+			var json = await JSON.parse(res.content.split('</x>')[1]);
+			//return json;
+			user.creatorUser = await json.payload.value.users[0].username;
+			user.creatorName = await json.payload.value.users[0].name;
+			user.creatorAvatar = await json.payload.value.users[0].imageId;	
+			await console.log('\n\nsocial.medium.pull.tag res inside:', json.success, json, '\n\n');
+			await MeteorBlogCollections.BlogUsers.upsert({creatorId: creatorId},{$set: user});
+			return await user;
 		}
 		httpres = main();
+		console.log('\n\nsocial.medium.pull.tag res :', httpres, '\n\n');
 		return httpres;
 
-	},			
+	},		
 	
 });

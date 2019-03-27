@@ -13,8 +13,9 @@ Package.describe({
 Package.onUse(function(api) {
   api.versionsFrom('1.8.0.2');
   api.use('ecmascript');
-  api.mainModule('client.js','client');//,{lazy: true});
+
   api.mainModule('server.js','server');//,{lazy: true});
+  api.mainModule('client.js','client');//,{lazy: true});	
 	//api.mainModule('common.js',['client','server']);//,{lazy: true});
 	
 	Npm.depends({
@@ -22,6 +23,7 @@ Package.onUse(function(api) {
 		//'cloudinary': '1.13.2',
 		//'medium-editor': '5.23.3',
 		'jquery-ui-bundle': '1.12.1-migrate',
+		'cron': '1.7.0',
 		//'medium-editor-insert-plugin': '2.5.1'
 		//'eonasdan-bootstrap-datetimepicker': '4.17.47'
 	});

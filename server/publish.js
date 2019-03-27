@@ -49,9 +49,11 @@ Meteor.publish('blog', function(params) {
 		list = params._id;	
 	else if (params.postid)
 		list = {postid: params.postid};
-	else if (params.blog)
+	else if (params.blog){
 		list = {draft: {$ne: true}};	
-	else if (params.all && Roles.userIsInRole(this.userId, ['admin'], 'admGroup'))
+		if (params.tag)
+			list.tags = params.tag;
+	}	else if (params.all && Roles.userIsInRole(this.userId, ['admin'], 'admGroup'))
 		list = {};	
 	else if (params.aggregated) {
 		list = {aggregated: true, blacklist: false};

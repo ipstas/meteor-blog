@@ -1,26 +1,45 @@
 <template name="blogIt">
+	<section id="blogItTags" class="animated fadeIn">
+		{{>blogTags}}
+	</section>
 	{{#if isInRole 'admin' 'admGroup'}}
-		<section id="menupick" class="container-fluid text-center  animated fadeIn">
+		<section id="typeBtn" class="animated fadeIn">
 			<div class="row">
 				<div class="col-auto">
 					<div class="btn-group" role="group" aria-label="Blog Content Type">
 						{{#each typeBtn}}
-							<button type="button" id="{{id}}" {{disabled}} class="btn btn-outline-{{color}} typeBtn">{{title}}</button>
+							<a href="/blog?select={{id}}"><button type="button" id="{{id}}" {{disabled}} class="btn btn-outline-{{color}} typeBtn">{{title}}</button></a>
 						{{/each}}
 					</div>				
 				</div>
 			</div>
 		</section>
 	{{/if}}
-	<section class="container-fluid content-section animated fadeIn">
+	<section id="blogIt" class="animated fadeIn">
 		{{#with selector}}
 			{{> Template.dynamic template=val data=push}}
 		{{/with}}
 	</section>
 </template>
 
+<template name="blogTags">
+	<section id="blogTags" class="animated fadeIn">
+		{{#each tags}}
+			<a href="/blog?tag={{_id}}"><span class="badge badge-light">{{_id}}</span></a> 
+		{{/each}}
+	</section>
+</template>
+
 <template name="blogContent">
 	<section id="blogContent" class="">
+		{{#with tag}}
+			<div class="row {{grayscale}}">	
+				<div class="col-12 h1">
+					<div class="badge badge-info">{{this}}</div>
+				</div>
+			</div>
+		{{/with}}
+
 		<div class="row {{grayscale}}">
 			{{#each posts}}		
 				<div class="col-12 col-sm-6 col-md-4">
@@ -124,15 +143,51 @@
 					<div class="row">	
 						<div class="col-xs-12">
 							{{#each tags}}
-								<div class="label label-default">#{{this}}</div> 
+									<a href="/blog?tag={{this}}"><div class="badge badge-light">{{this}}</div></a> 
 							{{/each}}
 						</div>	
 					</div>					
-					
-
-			
 				{{/with}}
 			</div>	
+		</div>					
+	</section>
+	
+	{{>blogBottom}}
+	
+</template>
+
+<template name="blogBottom">
+	<section id="blogBottom" class="container-fluid animated fadeInLeft blog">
+		<div class="row text-left align-items-center justify-content-center animated fadeIn">		
+			<div class="col-12 col-sm-6 col-md-4 p-5">
+				<div id="blogLikes" class="h2 text-muted">
+					<i class="pointer fa fa-thumbs-o-up up" aria-hidden="true"></i> people			
+					<i class="pointer fa fa-thumbs-o-down down" aria-hidden="true"></i> people 
+				</div>
+			</div>
+		</div>
+		<div class="row text-left align-items-center justify-content-center animated fadeIn">		
+			{{#each posts}}		
+				<div class="col-12 col-sm-6 col-md-4 p-5">
+					<div id="mediumimg" class="img-fluid">
+						<a href="/blog/post/{{postid}}"><img src="{{img}}" class="img-fluid" /></a>
+					</div>
+					<div id="mediumtitle" class="mediumtitle h4 p-2">
+						<a href="/blog/post/{{postid}}">{{title}}</a>
+					</div>
+					<div id="mediumtext" class="mediumtext p-2">
+						{{{htmlCut}}}
+					</div>
+				</div>		
+			{{else}}
+				{{#unless ready}}
+					<div class="col-12 h2 text-center p-5">
+						<div class="pointer spinner-border text-primary abscenter" role="status">
+							<span class="sr-only">getting data ready</span>
+						</div>		
+					</div>
+				{{/unless}}
+			{{/each}}
 		</div>					
 	</section>
 </template>

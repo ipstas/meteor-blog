@@ -119,7 +119,7 @@ Template.blogIt.onCreated(function () {
 	t.mediumeditor = new ReactiveVar();
 	t.autorun(()=>{
 		if (!FlowRouter.getQueryParam('push')) return;
-		let params = {caller: 'blogIt.onCreated', _id: FlowRouter.getQueryParam('push'), debug: Session.get('debug')};
+		let params = {caller: 'blogIt.onCreated', _id: FlowRouter.getQueryParam('push'), tag: FlowRouter.getQueryParam('tag'), debug: Session.get('debug')};
 		PostSubs.subscribe('blog', params);	
 	})
 
@@ -168,8 +168,34 @@ Template.blogIt.events({
 	'click .typeBtn'(e, t) {
 /* 		t.selector.set(this.val);
 		console.log('clicked cursor', e.target.id, this);		 */
-		FlowRouter.setQueryParams({select: this.id, push: null});
+		//FlowRouter.setQueryParams({select: this.id, push: null, tag: null});
 	},
+	'click .soon'(e,t){
+		Bert.alert('this feature is coming soon', 'info');
+	},
+});
+
+Template.blogTags.onCreated(function () {
+	let t = Template.instance();
+  t.tags = new ReactiveVar();
+	Meteor.call('blog.aggregate.tags',(e,r)=>{		
+		if(e) return console.warn('[blog.aggregate.tags] err', e);
+		t.tags.set(r[0].tags);
+		console.log('[blog.aggregate.tags]', e,r, r[0].tags, t.tags.get());
+	});
+	
+});
+Template.blogTags.onRendered(function () {
+
+});
+Template.blogTags.helpers({
+	tags(){
+		let t = Template.instance();
+		console.log('[blogTags.helpers] tags:', t.tags.get());
+		return t.tags.get();
+	},
+});
+Template.blogTags.events({
 	'click .soon'(e,t){
 		Bert.alert('this feature is coming soon', 'info');
 	},
@@ -186,7 +212,7 @@ Template.blogContent.onCreated(function () {
 	//console.log('[blogContent.onCreated] data', t.data);
 		
 	t.autorun(()=>{	
-		let params = {caller: 'blogContent.onCreated', blog: true, limit: t.limit.get()};
+		let params = {caller: 'blogContent.onCreated', blog: true, tag: FlowRouter.getQueryParam('tag'), limit: t.limit.get()};
 		sub = t.subscribe('blog', params);
 		//console.log('[blogContent.onCreated] sub:', params, t.data);
 		t.ready.set(sub.ready());
@@ -199,6 +225,9 @@ Template.blogContent.helpers({
 	ready(){
 		let t = Template.instance();
 		return t.ready.get();
+	},
+	tag(){
+		return FlowRouter.getQueryParam('tag');
 	},
 	posts(){
 		let t = Template.instance();
@@ -497,6 +526,64 @@ Template.blogPost.events({
 			// MeteorBlogCollections.Blog.update(FlowRouter.getQueryParam('push'),{$set:{html: event.target.innerHTML, text: event.target.innerText}});		
 		// console.log('clicked mededitable', e,t);
 	// }
+});
+
+Template.blogBottom.onCreated(function () {
+	let t = Template.instance();
+	t.ready = new ReactiveVar();
+	t.limit = new ReactiveVar(16);
+	t.loaded = new ReactiveVar();
+	t.sort = new ReactiveVar({createdAt: -1});
+	let sub;
+	
+	//console.log('[blogContent.onCreated] data', t.data);
+		
+	t.autorun(()=>{	
+		let params = {caller: 'blogContent.onCreated', blog: true, tag: FlowRouter.getQueryParam('tag'), limit: 4};
+		sub = t.subscribe('blog', params);
+		//console.log('[blogContent.onCreated] sub:', params, t.data);
+		t.ready.set(sub.ready());
+	});
+});
+Template.blogBottom.onRendered(function () {
+	let t = Template.instance();	
+});
+Template.blogBottom.helpers({
+	ready(){
+		let t = Template.instance();
+		return t.ready.get();
+	},
+	tag(){
+		return FlowRouter.getQueryParam('tag');
+	},
+	posts(){
+		let t = Template.instance();
+		let data = MeteorBlogCollections.Blog.find({postid: {$ne: FlowRouter.getParam('postid')}, scheduledAt: {$lt: new Date()}, draft:{$ne: true}},{sort: {createdAt: -1}, limit: 3});
+		return data;
+	},		
+	htmlCut(){
+		let txt = $('img', $(this.html)).remove().end().text();
+		txt = txt.substr(0,260) + '...';
+		//console.log('[blogContent.helpers] htmlCut', txt, this.html);
+		return txt;	
+	},
+	img(){
+		let url;
+		if (this.image && this.image.length)
+			url = this.image[0];
+		url = $('img', $(this.html)).attr('src') || url || 'https://res.cloudinary.com/orangry/image/upload/c_thumb,w_600,g_face/v1553633438/hundredgraphs/news.jpg';
+		url = url.replace(/upload/,'upload/c_thumb,w_200,g_face');
+		if (Session.get('debug')) console.log('[blogContent.helpers] img', url, this);
+		return url;
+	}
+});
+Template.blogBottom.events({
+	'click .up'(e,t){
+		Bert.alert('coming soon');
+	},
+	'click .down'(e,t){
+		Bert.alert('coming soon');
+	},
 });
 
 Template.blogEdit.onCreated(function () {
