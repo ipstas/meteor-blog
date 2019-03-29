@@ -290,6 +290,13 @@ Template.blogContent.helpers({
 			console.log('[blogContent.helpers] showMore:', t.limit.get() <= t.count.get(), 'limit:', t.limit.get(), 'count:', t.count.get());
 		return t.limit.get() <= t.count.get();
 	},
+	more(){
+		let t = Template.instance();
+		let more = parseInt(FlowRouter.getQueryParam('more')) || t.limit.get(); 
+		more = more + t.next.get();
+		console.log('[blogContent.helpers] more', parseInt(FlowRouter.getQueryParam('more')) || t.limit.get(), more, this);
+		return more;
+	},
 	showMoreClass(){
 		let t = Template.instance();
 		if (!t.ready.get()) return;
@@ -305,9 +312,9 @@ Template.blogContent.helpers({
 });
 Template.blogContent.events({
 	'click .loadMore'(e,t){
-		if (Session.get('debug')) console.log('clicked more', FlowRouter.getQueryParam('more'), t.next.get(), t.count.get());
-		let more =  parseInt(FlowRouter.getQueryParam('more')) || t.limit.get(); 
-		FlowRouter.setQueryParams({more: more + t.next.get()});
+		// if (Session.get('debug')) console.log('clicked more', FlowRouter.getQueryParam('more'), t.next.get(), t.count.get());
+		// let more =  parseInt(FlowRouter.getQueryParam('more')) || t.limit.get(); 
+		// FlowRouter.setQueryParams({more: more + t.next.get()});
 		Meteor.setTimeout(()=>{
 			//window.scrollTo(0,document.body.scrollHeight);
 			$('html, body').animate({scrollTop: $(window).scrollTop() + window.innerHeight / 3}, 'slow');
