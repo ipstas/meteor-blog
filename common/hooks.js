@@ -57,4 +57,27 @@ export const hooksAddPost = {
 		return false;
 	}
 };
+export const hooksPullMedium = {
+	onSubmit: function (doc) {
+		let updated;// = MeteorBlogCollections.Blog.update({_id: doc._id},{$set: doc});
+		console.log("[hooksAddPost] onsubmit", updated, '\ndoc:', doc, '\nthis:', this);
+		Session.set('request', true);
+		if (doc.action == 'tag')
+			Meteor.call('social.medium.pull.tag',{q: doc.q},(e,r)=>{
+				if (e) Bert.alert(doc.action + ' ' + e.error, 'danger');
+				console.log('[hooksPullMedium] e:', e, '\nr', r);
+				Session.set('request');
+				if (r && r.inserted)
+					Bert.alert('received ' + r.inserted + 'new articles', 'info');
+			})
+		else if (doc.action == 'post')
+			Meteor.call('social.medium.pull.article',{url: doc.q},(e,r)=>{
+				if (e) Bert.alert(doc.action + ' ' + e.error, 'danger');
+				console.log('[hooksPullMedium] e:', e, '\nr', r);
+				Session.set('request');
+			})			
+		this.done();
+		return false;
+	}
+};
 AutoForm.addHooks(null, hooksObject);

@@ -159,6 +159,28 @@ MeteorBlogSchemas.Blog = new SimpleSchema({
 		type: String,
 		optional: true,
 	},  
+	detectedLanguage: {
+		type: String,
+		index: true,
+		optional: true,
+	},  
+	tags: {
+		type: Array,
+		optional: true,
+		index: true,
+		autoform: {
+			type: 'tags'
+		}
+	}, 
+	'tags.$': {
+		type: String,
+		optional: true,
+	},
+	draft: {
+		type: Boolean,
+		index: true,
+		optional: true,
+	},	
 	text: {
 		type: String,
 		optional: true,
@@ -177,21 +199,6 @@ MeteorBlogSchemas.Blog = new SimpleSchema({
 	},		
 	'image.$': {
 		type: String,
-		optional: true,
-	},	
-	tags: {
-		type: Array,
-		optional: true,
-		autoform: {
-			type: 'tags'
-		}
-	}, 
-	'tags.$': {
-		type: String,
-		optional: true,
-	},
-	draft: {
-		type: Boolean,
 		optional: true,
 	},			
 	aggregated: {

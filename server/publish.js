@@ -44,11 +44,11 @@ Meteor.publish('blog', function(params) {
 	var list = {};
 	var options = {sort: {scheduledAt: -1}, limit: params.limit};
 	if (params.blog) {
-		list = {draft: false, scheduledAt: {$lt: new Date()}};
+		list = {draft: false, scheduledAt: {$lt: new Date}, detectedLanguage: {$in: params.languages}};
 		if (params.tag)
 			list.tags = params.tag;
 	}	else if (params.aggregated) {
-		list = {aggregated: true, blacklist: false};
+		list = {aggregated: true, draft: true, blacklist: false};
 	} else if (params._id)
 		list = params._id;	
 	else if (params.postid)

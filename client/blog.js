@@ -18,8 +18,9 @@ const _LocalTags = new Mongo.Collection(null);
 
 import { hooksObject } from '../common/hooks.js';
 import { hooksAddPost } from '../common/hooks.js';
+import { hooksPullMedium } from '../common/hooks.js';
 AutoForm.addHooks('datePushForm', hooksObject);
-AutoForm.addHooks('datePushForm', hooksAddPost);
+AutoForm.addHooks('pullMediumForm', hooksPullMedium);
 
 //import {infCheck} from './functions';
 //import {checkMore} from './functions';
@@ -239,7 +240,7 @@ Template.blogContent.onCreated(function () {
 			t.limit.set(limit);
 	});
 	t.autorun(()=>{	
-		let params = {caller: 'blogContent.onCreated', blog: true, tag: FlowRouter.getQueryParam('tag'), limit: t.limit.get(), debug: Session.get('debug')};
+		let params = {caller: 'blogContent.onCreated', blog: true, tag: FlowRouter.getQueryParam('tag'), limit: t.limit.get(), debug: Session.get('debug'), languages: navigator.languages};
 		sub = t.subscribe('blog', params);
 		t.ready.set(sub.ready());
 	});
@@ -254,6 +255,9 @@ Template.blogContent.helpers({
 	},
 	tag(){
 		return FlowRouter.getQueryParam('tag');
+	},
+	request(){
+		return Session.get('request');
 	},
 	posts(){
 		let t = Template.instance();
@@ -308,6 +312,17 @@ Template.blogContent.events({
 			//window.scrollTo(0,document.body.scrollHeight);
 			$('html, body').animate({scrollTop: $(window).scrollTop() + window.innerHeight / 3}, 'slow');
 		},500)
+	},	
+	'click .pullMore'(e,t){
+		if (Session.get('debug')) console.log('clicked pullMore', this);
+		Session.set('request', true);		
+		Meteor.call('social.medium.pull.tag',{q: this.valueOf()},(e,r)=>{
+			if (e) Bert.alert(doc.action + ' ' + e.error, 'danger');
+			console.log('[hooksPullMedium] e:', e, '\nr', r);
+			if (r && r.inserted)
+				Bert.alert('received ' + r.inserted + 'new articles', 'info');
+			Session.set('request');
+		})		
 	},
 });
 
@@ -453,6 +468,9 @@ Template.blogPost.helpers({
 	checkedUser(){
 		if (this.ban) return 'checked';
 	},
+	checkedHide(){
+		if (this.blacklist) return 'checked';
+	},
 	lowtag(){
 		//console.log('lowtag this', this.valueOf());
 		var tag = this.valueOf().toLowerCase().replace(/ /g,'-');
@@ -531,18 +549,10 @@ Template.blogPost.events({
 		let creator = MeteorBlogCollections.BlogUsers.findOne({creatorId: this.creatorId});
 		if (creator) MeteorBlogCollections.BlogUsers.update({_id: creator._id},{$set:{ban:e.target.checked}});
 	},
-	/* 	'click .newpush'(e, t) {
-		var push = MeteorBlogCollections.Blog.insert({title:'Title. That will be used in Medium only for the url',html:'start editing'});
-		FlowRouter.setQueryParams({push: push});
-		console.log('clicked newpush', push);
-	} */
-	// 'click .mededitable'(e,t){
-		// if (event.target.id == 'mediumtitle')
-			// MeteorBlogCollections.Blog.update(FlowRouter.getQueryParam('push'),{$set:{title: event.target.innerText}});
-		// else if (event.target.id == 'mediumtext')
-			// MeteorBlogCollections.Blog.update(FlowRouter.getQueryParam('push'),{$set:{html: event.target.innerHTML, text: event.target.innerText}});		
-		// console.log('clicked mededitable', e,t);
-	// }
+	'change #hide'(e,t){
+		if (Session.get('debug')) console.log('clicked remove', this);
+		MeteorBlogCollections.Blog.update({_id: this._id},{$set: {blacklist: true}});
+	},
 });
 
 Template.blogBottom.onCreated(function () {
@@ -1488,6 +1498,7 @@ Template.blogAggregated.onCreated(function () {
 	t.next = new ReactiveVar(16);
 	t.loaded = new ReactiveVar();
 	t.sort = new ReactiveVar({createdAt: -1});
+	t.request = new ReactiveVar();
 	
 	var sub, list;
 	
@@ -1599,6 +1610,9 @@ Template.blogAggregated.helpers({
 		formdefault.action = 'tag';
 		return formdefault;
 	},
+	request(){
+		return Session.get('request');
+	},
 	debug(){
 		if (Session.get('debug')) console.log('blog data debug', this);
 	}
@@ -1609,7 +1623,7 @@ Template.blogAggregated.events({
 		let creator = MeteorBlogCollections.BlogUsers.findOne({creatorId: this.creatorId});
 		if (creator) MeteorBlogCollections.BlogUsers.update({_id: creator._id},{$set:{ban:true}});
 	},
-	'click .remove'(e,t){
+	'click .hide'(e,t){
 		if (Session.get('debug')) console.log('clicked remove', this);
 		//MeteorBlogCollections.Blog.remove({_id: this._id});
 		MeteorBlogCollections.Blog.update({_id: this._id},{$set: {blacklist: true}});
@@ -1623,6 +1637,9 @@ Template.blogAggregated.events({
 	},
 	'click a'(){
 		$('html, body').animate({scrollTop: $('body').offset().top -150 }, 'slow');		
-	}
+	},
+/* 	'submit'(e,t){
+		console.log('[blogAggregated.events] submit', e, this);
+	} */
 });
 

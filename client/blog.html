@@ -34,6 +34,14 @@
 			<div class="row">	
 				<div class="col-12 h1">
 					<div class="badge badge-info">{{this}}</div>
+					{{#if isInRole 'admin' 'admGroup'}}
+						<div class="btn btn-outline-info pullMore">Pull More</div>
+						{{#if request}}
+							<div class="pointer spinner-border text-primary abscenter" role="status">
+								<span class="sr-only">getting data ready</span>
+							</div>
+						{{/if}}
+					{{/if}}
 				</div>
 			</div>
 		{{/with}}
@@ -116,25 +124,27 @@
 						<div class="col-12">
 							<div class=""><br/>Published on {{date}} by {{creator.name}} </div> 
 							{{#if aggregated}}
-								<!-- <div class="">@{{creator.creatorUser}}/{{postid}}</div> -->
 								<div class="">at <a href="{{original}}" target=_blank>{{original}}</a></div>
 								{{#if isInRole 'admin' 'admGroup'}}
 									<div class="row">	
 										<div class="col-auto">
-											<div class="custom-control custom-switch">
+											<div class="custom-control custom-switch" data-toggle="tooltip" data-placement="top" title="Don't pull from this author anymore">
 												<input type="checkbox" class="custom-control-input" {{checkedUser}} id="ban">
 												<label class="custom-control-label" for="ban">Ban</label>
 											</div>		
 										</div>		
 										<div class="col-auto">
-											<div class="custom-control custom-switch">
+											<div class="custom-control custom-switch" data-toggle="tooltip" data-placement="top" title="Publish in local blog">
 												<input type="checkbox" class="custom-control-input" {{checkedDraft}} id="draft">
 												<label class="custom-control-label" for="draft">Publish</label>
 											</div>
 										</div>
-									</div>
-									<div class="col-auto">
-										<a href="/blog?select=edit&push={{_id}}"><div class="btn btn-sm btn-info">Edit</div></a>
+										<div class="col-auto">
+											<div class="custom-control custom-switch" data-toggle="tooltip" data-placement="top" title="Hide this article">
+												<input type="checkbox" class="custom-control-input" {{checkedHide}} id="blacklist">
+												<label class="custom-control-label" for="blacklist">Hide</label>
+											</div>
+										</div>
 									</div>
 								{{/if}}
 							{{/if}}
@@ -142,12 +152,12 @@
 					</div>
 					
 					<div class="row">	
-						<div class="col-xs-12">
+						<div class="col-12">
 							{{{html}}}
 						</div>	
 					</div>							
 					<div class="row">	
-						<div class="col-xs-12">
+						<div class="col-12">
 							{{#each tags}}
 									<a href="/blog?tag={{this}}"><div class="badge badge-light">{{this}}</div></a> 
 							{{/each}}
@@ -530,7 +540,12 @@
 	<section id="blogAggregated" class=" animated fadeIn">
 		<div class="row align-items-left justify-content-center ">		
 			<div class="col-12 pt-2 pb-2">				
-				{{> quickForm schema=schema id="pullMediumForm" template="bootstrap3-inline" doc=doc afFieldInput-placeholder="schemaLabel" type="method" meteormethod="social.medium.pull.request"}}			
+				{{> quickForm schema=schema id="pullMediumForm" template="bootstrap3-inline" doc=doc afFieldInput-placeholder="schemaLabel" type="normal" meteormethod="social.medium.pull.tag"}}		
+				{{#if request}}
+					<div class="pointer spinner-border text-primary abscenter" role="status">
+						<span class="sr-only">getting data ready</span>
+					</div>
+				{{/if}}
 			</div>
 		</div>
 		<div class="h3">Draft Aggregated Posts</div>
@@ -546,7 +561,7 @@
 					<div id="mediumtext" class="mediumtext p-2">
 						{{{htmlCut}}}
 					</div>
-					<div class="btn btn-sm btn-danger remove">Remove</div> <div class="btn btn-sm btn-danger ban">Ban</div>
+					<div class="btn btn-sm btn-danger hide">Hide</div> <div class="btn btn-sm btn-danger ban">Ban</div>
 				</div>		
 			{{else}}
 				{{#unless ready}}
