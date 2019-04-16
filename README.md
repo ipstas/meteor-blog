@@ -5,6 +5,7 @@ It allows you to create your own blog posts locally or to pull from Medium so yo
 
 This is very early release, expect some bugs. However we are using it extensively in few our projects, so we fix it eagerly. 
 
+## Howto
 Create 2 routes:
 ```javascript
 import('meteor/ipstas:meteor-blog');
