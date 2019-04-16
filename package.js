@@ -11,7 +11,7 @@ Package.describe({
 });
 
 Package.onUse(function(api) {
-  api.versionsFrom('1.8');
+  api.versionsFrom(['1.6','1.8']);
   api.use('ecmascript');
 
   api.mainModule('server.js','server');//,{lazy: true});
@@ -32,14 +32,14 @@ Package.onUse(function(api) {
 		'ecmascript',
 		'check',
 		'mongo',
-		'templating',
-		'blaze',
+		'templating@1.3.0',
+		'blaze@2.3.0',
 		'underscore',
 		'reactive-dict',
-		'aldeed:autoform',
+		'aldeed:autoform@6.3.0',
 		//'aldeed:autoform-bs-datetimepicker',
 		//'aldeed:autoform-bs-datepicker',
-		'mediumeditor:mediumeditor',
+		'mediumeditor:mediumeditor@5.2.0',
 		//'tomwasd:flow-router-seo',
 		//'tomwasd:flow-router-seo'
 	]);
