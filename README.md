@@ -36,7 +36,7 @@ FlowRouter.route('/blog/post/:postid', {
 ```
 You need to be an admin (set in alanning:roles), blog accepts two variants:
 ```javascript
-(Roles.userIsInRole(userId, ['admin'], 'admGroup') || Roles.userIsInRole(userId, ['admin']))
+(Roles.userIsInRole(userId, ['admin', 'editor'], 'admGroup') || Roles.userIsInRole(userId, ['admin', 'editor']))
 ```
 
 Go to *Aggregated* first, put something like "Smart Home" and click *Submit*. It should pull at least 4-10 articles from Medium. From here you can select *Ban* (and that author will never be pulled again) or just *Hide* and this particular article will be hidden. 
