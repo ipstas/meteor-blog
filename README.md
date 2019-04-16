@@ -1,7 +1,7 @@
 # meteor-blog
 atmosphere package for meteor blog 
 
-It allows you to create your own blog posts or to pull from Medium
+It allows you to create your own blog posts locally or to pull from Medium so you don't have to write twice. 
 
 This is very early release, expect some bugs. However we are using it extensively in few our projects, so we fix it eagerly. 
 
