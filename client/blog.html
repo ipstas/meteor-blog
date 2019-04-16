@@ -113,7 +113,7 @@
 				{{#with post}}		
 					<div class="row">				
 						<div class="col-12 col-xs-12">
-							<img src="{{img}}" border="0" align="left" class="img-fluid  img-responsive"/>
+							<!-- <img src="{{img}}" border="0" align="left" class="img-fluid  img-responsive"/> -->
 							{{#if author}}
 								<a href="/blog?select=edit&post={{_id}}" class="floatRight">
 									<div class="btn btn-xs btn-outline-info"><b>Edit</b></div>
@@ -192,6 +192,7 @@
 					{{/with}}
 				</div>		
 			{{else}}
+				<p><img src="{{img}}" border="0" align="left" class="img-fluid  img-responsive"/></p>
 				{{{html}}}
 			{{/each}}
 		</div>					
