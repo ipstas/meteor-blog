@@ -3,8 +3,8 @@
 import moment from 'moment';
 import $ from 'jquery';
 import 'jquery-ui-bundle';
-import {FlowRouterSEO} from 'meteor/ipstas:flow-router-seo';
-const SEO = new  FlowRouterSEO;
+//import {FlowRouterSEO} from 'meteor/tomwasd:flow-router-seo';
+//const SEO = new  FlowRouterSEO;
 //import 'meteor/aldeed:autoform-bs-datetimepicker';
 import { Random } from 'meteor/random';
 import {MediumEditor} from 'meteor/mediumeditor:mediumeditor';
@@ -243,7 +243,7 @@ Template.blogContent.onCreated(function () {
 	});
 	t.autorun(()=>{	
 		let params = {caller: 'blogContent.onCreated', blog: true, tag: FlowRouter.getQueryParam('tag'), limit: t.limit.get(), debug: Session.get('debug'), languages: navigator.languages};
-		sub = t.subscribe('blog', params);
+		sub = PostSubs.subscribe('blog', params);
 		t.ready.set(sub.ready());
 	});
 });
@@ -315,16 +315,24 @@ Template.blogContent.helpers({
 	}
 });
 Template.blogContent.events({
+	'click .nohref'(e,t){
+		//e.preventDefault();
+		//e.stopPropagation();
+	},
 	'click .loadMore'(e,t){
-		// if (Session.get('debug')) console.log('clicked more', FlowRouter.getQueryParam('more'), t.next.get(), t.count.get());
-		// let more =  parseInt(FlowRouter.getQueryParam('more')) || t.limit.get(); 
-		// FlowRouter.setQueryParams({more: more + t.next.get()});
+		//e.preventDefault();
+		//e.stopPropagation();
+		if (Session.get('debug')) console.log('clicked more', FlowRouter.getQueryParam('more'), t.next.get(), t.count.get());
+		let more =  parseInt(FlowRouter.getQueryParam('more')) || t.limit.get(); 
+		FlowRouter.setQueryParams({more: more + t.next.get()});
 		Meteor.setTimeout(()=>{
 			//window.scrollTo(0,document.body.scrollHeight);
 			$('html, body').animate({scrollTop: $(window).scrollTop() + window.innerHeight / 3}, 'slow');
 		},500)
 	},	
 	'click .pullMore'(e,t){
+		e.preventDefault();
+		e.stopPropagation();
 		if (Session.get('debug')) console.log('clicked pullMore', this);
 		Session.set('request', true);		
 		Meteor.call('social.medium.pull.tag',{q: this.valueOf()},(e,r)=>{
@@ -403,8 +411,8 @@ Template.blogPost.onRendered(function () {
 		data.title = data.title;
 		data.description = data.text;
 		var image = host + '/img/vr_bck2.jpg';
-		var keywords = data.tags + "virgo, virgo360, 360, virtual, augmented, reality, panorama";
-		var seo = {
+		var keywords = data.tags;
+/* 		var seo = {
 			title: data.title,
 			description: data.description,
 			meta: {
@@ -429,7 +437,7 @@ Template.blogPost.onRendered(function () {
 		$('meta[name="twitter:description"]').remove();
 		$('meta[name="twitter:image"]').remove();
 		$('meta[name="keywords"]').remove();
-		SEO.set(seo);
+		SEO.set(seo); */
 	});
 
 });
@@ -442,7 +450,7 @@ Template.blogPost.helpers({
 		return t.ready.get();
 	}, */
 	isAdmin(){
-		return (Roles.userIsInRole(Meteor.userId(), ['admin'], 'admGroup')) ;
+		return (Roles.userIsInRole(Meteor.userId(), ['admin', 'editor'], 'admGroup')) ;
 	},
 	post(){
 		let t = Template.instance();
@@ -451,9 +459,9 @@ Template.blogPost.helpers({
 		t.blog.set(data);
 		let title = 'HundredGraphs, visualize your IoT data.';
 		if (data){
-			SEO.set({
+/* 			SEO.set({
 				title: 'Blog @HundredGraphs. ' + data.title + ' ' + title
-			});		
+			});		 */
 			window.prerenderReady = true;
 		}
 
@@ -729,7 +737,7 @@ Template.blogEdit.helpers({
 		return t.ready.get();
 	},
 	isAdmin(){
-		return (Roles.userIsInRole(Meteor.userId(), ['admin'], 'admGroup')) ;
+		return (Roles.userIsInRole(Meteor.userId(), ['admin', 'editor'], 'admGroup')) ;
 	},
 	selector(){
 		//let t = Template.instance();
@@ -894,7 +902,7 @@ Template.blogQueue.helpers({
 		return t.ready.get();
 	},
 	isAdmin(){
-		return (Roles.userIsInRole(Meteor.userId(), ['admin'], 'admGroup')) ;
+		return (Roles.userIsInRole(Meteor.userId(), ['admin', 'editor'], 'admGroup')) ;
 	},
 	posts(){
 		let t = Template.instance();
@@ -962,7 +970,7 @@ Template.blogStatus.helpers({
 		return t.ready.get();
 	},
 	isAdmin(){
-		return (Roles.userIsInRole(Meteor.userId(), ['admin'], 'admGroup')) ;
+		return (Roles.userIsInRole(Meteor.userId(), ['admin', 'editor'], 'admGroup')) ;
 	},
 	posts(){
 		let t = Template.instance();
@@ -1587,7 +1595,7 @@ Template.blogAggregated.onRendered(function () {
 		data.title = '360 Virtual Tours blog';
 		data.description = 'ALl you need to know about 360 photography and 360 Virtual Tours: the Blog';
 		var image = host + '/img/vr_bck2.jpg';
-		var seo = {
+/* 		var seo = {
 			title: data.title,
 			description: data.profile.description,
 			meta: {
@@ -1610,7 +1618,7 @@ Template.blogAggregated.onRendered(function () {
 		$('meta[name="twitter:title"]').remove();
 		$('meta[name="twitter:description"]').remove();
 		$('meta[name="twitter:image"]').remove();
-		SEO.set(seo);
+		SEO.set(seo); */
 	});
 	
   $(window).scroll(function(){	

@@ -49,6 +49,7 @@ Meteor.publish('push', function(params) {
 Meteor.publish('blog', function(params) {
 	var params = params || {};
 	params.limit = params.limit || 16;
+	params.languages = params.languages || ['en'];
 	
 	var list = {};
 	var options = {sort: {scheduledAt: -1}, limit: params.limit};

@@ -2,9 +2,9 @@ Package.describe({
   name: 'ipstas:meteor-blog',
   version: '0.0.1',
   // Brief, one-line summary of the package.
-  summary: '',
+  summary: 'Simple meteor blog',
   // URL to the Git repository containing the source code for this package.
-  git: '',
+  git: 'https://github.com/ipstas/meteor-blog',
   // By default, Meteor will default to using README.md for documentation.
   // To avoid submitting documentation, set this field to null.
   documentation: 'README.md'
@@ -40,7 +40,7 @@ Package.onUse(function(api) {
 		//'aldeed:autoform-bs-datetimepicker',
 		//'aldeed:autoform-bs-datepicker',
 		'mediumeditor:mediumeditor',
-		//'ipstas:flow-router-seo'
+		//'tomwasd:flow-router-seo',
 		//'tomwasd:flow-router-seo'
 	]);
 	
@@ -54,6 +54,6 @@ Package.onUse(function(api) {
 Package.onTest(function(api) {
   api.use('ecmascript');
   api.use('tinytest');
-  api.use('ipstas-meteor-blog');
-  api.mainModule('ipstas-meteor-blog-tests.js');
+  api.use('ipstas:meteor-blog');
+  api.mainModule('meteor-blog-tests.js');
 });

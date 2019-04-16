@@ -57,15 +57,15 @@ MeteorBlogSchemas.BlogServices = new SimpleSchema({
 MeteorBlogCollections.BlogServices.attachSchema(MeteorBlogSchemas.BlogService);
 MeteorBlogCollections.BlogServices.allow({
   insert: function (userId, doc) {
-		if (Roles.userIsInRole(userId, ['admin'], 'admGroup') || Roles.userIsInRole(userId, ['admin'])) 
+		if (Roles.userIsInRole(userId, ['admin', 'editor'], 'admGroup') || Roles.userIsInRole(userId, ['admin', 'editor'])) 
 			return true;
   },
   update: function (userId, doc) {
-		if (Roles.userIsInRole(userId, ['admin'], 'admGroup') || Roles.userIsInRole(userId, ['admin'])) 
+		if (Roles.userIsInRole(userId, ['admin', 'editor'], 'admGroup') || Roles.userIsInRole(userId, ['admin', 'editor'])) 
 			return true;
   },
   remove: function (userId, doc) {
-		if (Roles.userIsInRole(userId, ['admin'], 'admGroup') || Roles.userIsInRole(userId, ['admin'])) 
+		if (Roles.userIsInRole(userId, ['admin', 'editor'], 'admGroup') || Roles.userIsInRole(userId, ['admin', 'editor'])) 
 			return true;
   }
 });
@@ -121,15 +121,15 @@ MeteorBlogSchemas.BlogUsers = new SimpleSchema({
 //MeteorBlogSchemas.BlogUser.attachSchema(MeteorBlogSchemas.SchemasPushService);
 MeteorBlogCollections.BlogUsers.allow({
   insert: function (userId, doc) {
-		if (Roles.userIsInRole(userId, ['admin'], 'admGroup') || Roles.userIsInRole(userId, ['admin'])) 
+		if (Roles.userIsInRole(userId, ['admin', 'editor'], 'admGroup') || Roles.userIsInRole(userId, ['admin', 'editor'])) 
 			return true;
   },
   update: function (userId, doc) {
-		if (Roles.userIsInRole(userId, ['admin'], 'admGroup') || Roles.userIsInRole(userId, ['admin'])) 
+		if (Roles.userIsInRole(userId, ['admin', 'editor'], 'admGroup') || Roles.userIsInRole(userId, ['admin', 'editor'])) 
 			return true;
   },
   remove: function (userId, doc) {
-		if (Roles.userIsInRole(userId, ['admin'], 'admGroup') || Roles.userIsInRole(userId, ['admin'])) 
+		if (Roles.userIsInRole(userId, ['admin', 'editor'], 'admGroup') || Roles.userIsInRole(userId, ['admin', 'editor'])) 
 			return true;
   }
 });
@@ -267,15 +267,15 @@ MeteorBlogSchemas.Blog = new SimpleSchema({
 MeteorBlogCollections.Blog.attachSchema(MeteorBlogSchemas.Blog);
 MeteorBlogCollections.Blog.allow({
   insert: function (userId, doc) {
-		if (Roles.userIsInRole(userId, ['admin'], 'admGroup') || Roles.userIsInRole(userId, ['admin'])) 
+		if (Roles.userIsInRole(userId, ['admin', 'editor'], 'admGroup') || Roles.userIsInRole(userId, ['admin', 'editor'])) 
 			return true;
   },
   update: function (userId, doc) {
-		if (Roles.userIsInRole(userId, ['admin'], 'admGroup') || Roles.userIsInRole(userId, ['admin'])) 
+		if (Roles.userIsInRole(userId, ['admin', 'editor'], 'admGroup') || Roles.userIsInRole(userId, ['admin', 'editor'])) 
 			return true;
   },
   remove: function (userId, doc) {
-		if (Roles.userIsInRole(userId, ['admin'], 'admGroup') || Roles.userIsInRole(userId, ['admin'])) 
+		if (Roles.userIsInRole(userId, ['admin', 'editor'], 'admGroup') || Roles.userIsInRole(userId, ['admin', 'editor'])) 
 			return true;
   }
 });
@@ -341,15 +341,15 @@ MeteorBlogSchemas.BlogImages = new SimpleSchema({
 MeteorBlogCollections.BlogImages.attachSchema(MeteorBlogSchemas.BlogImages);
 MeteorBlogCollections.BlogImages.allow({
   insert: function (userId, doc) {
-		if (Roles.userIsInRole(userId, ['admin'], 'admGroup') || Roles.userIsInRole(userId, ['admin'])) 
+		if (Roles.userIsInRole(userId, ['admin', 'editor'], 'admGroup') || Roles.userIsInRole(userId, ['admin', 'editor'])) 
 			return true;
   },
   update: function (userId, doc) {
-		if (Roles.userIsInRole(userId, ['admin'], 'admGroup') || Roles.userIsInRole(userId, ['admin'])) 
+		if (Roles.userIsInRole(userId, ['admin', 'editor'], 'admGroup') || Roles.userIsInRole(userId, ['admin', 'editor'])) 
 			return true;
   },
   remove: function (userId, doc) {
-		if (Roles.userIsInRole(userId, ['admin'], 'admGroup') || Roles.userIsInRole(userId, ['admin'])) 
+		if (Roles.userIsInRole(userId, ['admin', 'editor'], 'admGroup') || Roles.userIsInRole(userId, ['admin', 'editor'])) 
 			return true;
   }
 });
@@ -431,15 +431,15 @@ MeteorBlogSchemas.BlogPullMedium = new SimpleSchema({
 MeteorBlogCollections.BlogTags.attachSchema(MeteorBlogSchemas.BlogTags);
 MeteorBlogCollections.BlogTags.allow({
   insert: function (userId, doc) {
-		if (Roles.userIsInRole(userId, ['admin'], 'admGroup') || Roles.userIsInRole(userId, ['admin'])) 
+		if (Roles.userIsInRole(userId, ['admin', 'editor'], 'admGroup') || Roles.userIsInRole(userId, ['admin', 'editor'])) 
 			return true;
   },
   update: function (userId, doc) {
-		if (Roles.userIsInRole(userId, ['admin'], 'admGroup') || Roles.userIsInRole(userId, ['admin'])) 
+		if (Roles.userIsInRole(userId, ['admin', 'editor'], 'admGroup') || Roles.userIsInRole(userId, ['admin', 'editor'])) 
 			return true;
   },
   remove: function (userId, doc) {
-		if (Roles.userIsInRole(userId, ['admin'], 'admGroup') || Roles.userIsInRole(userId, ['admin'])) 
+		if (Roles.userIsInRole(userId, ['admin', 'editor'], 'admGroup') || Roles.userIsInRole(userId, ['admin', 'editor'])) 
 			return true;
   }
 });
