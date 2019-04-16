@@ -3,6 +3,8 @@
 import moment from 'moment';
 import $ from 'jquery';
 import 'jquery-ui-bundle';
+import {FlowRouterSEO} from 'meteor/ipstas:flow-router-seo';
+const SEO = new  FlowRouterSEO;
 //import 'meteor/aldeed:autoform-bs-datetimepicker';
 import { Random } from 'meteor/random';
 import {MediumEditor} from 'meteor/mediumeditor:mediumeditor';
@@ -264,8 +266,10 @@ Template.blogContent.helpers({
 		let data = MeteorBlogCollections.Blog.find({scheduledAt: {$lt: new Date()}, draft:{$ne: true}},{sort: {scheduledAt: -1}});
 		if (data.count()) 
 			window.IS_RENDERED = true;
+
 		if (data.count() > t.count.get())
 			t.count.set(data.count());	
+
 		return data;
 	},		
 	htmlCut(){
@@ -448,7 +452,7 @@ Template.blogPost.helpers({
 		let title = 'HundredGraphs, visualize your IoT data.';
 		if (data){
 			SEO.set({
-				title: 'Blog Post. ' + data.title + ' ' + title
+				title: 'Blog @HundredGraphs. ' + data.title + ' ' + title
 			});		
 			window.prerenderReady = true;
 		}
@@ -559,6 +563,55 @@ Template.blogPost.events({
 	'change #hide'(e,t){
 		if (Session.get('debug')) console.log('clicked remove', this);
 		MeteorBlogCollections.Blog.update({_id: this._id},{$set: {blacklist: true}});
+	},
+});
+
+Template.blogPostContent.onCreated(function () {
+	window.prerenderReady = false;
+	let t = Template.instance();
+	t.ready = new ReactiveVar();
+	t.limit = new ReactiveVar(16);
+	t.loaded = new ReactiveVar();
+	t.sort = new ReactiveVar({createdAt: -1});
+	let sub;
+	
+	//console.log('[blogContent.onCreated] data', t.data);
+		
+	t.autorun(()=>{	
+		let params = {caller: 'blogContent.onCreated', blog: true, tag: FlowRouter.getQueryParam('tag'), limit: 4};
+		sub = t.subscribe('blog', params);
+		//console.log('[blogContent.onCreated] sub:', params, t.data);
+		t.ready.set(sub.ready());
+	});
+});
+Template.blogPostContent.onRendered(function () {
+	let t = Template.instance();	
+});
+Template.blogPostContent.helpers({
+	markup(){
+		console.log('[blogPostContent] markup', this);
+		if (this.metadata)
+			return 'markImg';
+		else if (this.type == 3)
+			return 'h2'
+		else if (this.type == 4)
+			return 'text-muted h6 '
+		else if (this.markups.length && this.markups[0].type == 1)
+			return 'h3'
+	
+	},
+	img(){
+		console.log('[blogPostContent] img', this);
+		let url = 'https://cdn-images-1.medium.com/max/1000/' + this.id;
+		return url;
+	}
+});
+Template.blogPostContent.events({
+	'click .up'(e,t){
+		Bert.alert('coming soon');
+	},
+	'click .down'(e,t){
+		Bert.alert('coming soon');
 	},
 });
 
@@ -1613,7 +1666,7 @@ Template.blogAggregated.helpers({
 	},
 	doc(){
 		formdefault = {};
-		formdefault.q = 'Smart Home';
+		formdefault.q = Session.get('defaultQ');
 		formdefault.action = 'tag';
 		return formdefault;
 	},
@@ -1625,13 +1678,14 @@ Template.blogAggregated.helpers({
 	}
 });
 Template.blogAggregated.events({
-	'click .ban'(e,t){
-		if (Session.get('debug')) console.log('clicked remove', this);
+	'click .banIt'(e,t){
+		if (Session.get('debug')) console.log('clicked banIt', this);
 		let creator = MeteorBlogCollections.BlogUsers.findOne({creatorId: this.creatorId});
 		if (creator) MeteorBlogCollections.BlogUsers.update({_id: creator._id},{$set:{ban:true}});
+		MeteorBlogCollections.Blog.update({_id: this._id},{$set: {blacklist: true}});
 	},
-	'click .hide'(e,t){
-		if (Session.get('debug')) console.log('clicked remove', this);
+	'click .hideIt'(e,t){
+		if (Session.get('debug')) console.log('clicked hideIt', this);
 		//MeteorBlogCollections.Blog.remove({_id: this._id});
 		MeteorBlogCollections.Blog.update({_id: this._id},{$set: {blacklist: true}});
 	},

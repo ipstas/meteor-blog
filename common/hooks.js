@@ -62,6 +62,7 @@ export const hooksPullMedium = {
 		let updated;// = MeteorBlogCollections.Blog.update({_id: doc._id},{$set: doc});
 		console.log("[hooksAddPost] onsubmit", updated, '\ndoc:', doc, '\nthis:', this);
 		Session.set('request', true);
+		Session.setPersistent('defaultQ', doc.q);
 		if (doc.action == 'tag')
 			Meteor.call('social.medium.pull.tag',{q: doc.q},(e,r)=>{
 				if (e) Bert.alert(doc.action + ' ' + e.error, 'danger');

@@ -8,20 +8,27 @@ Meteor.publish('push', function(params) {
 	params.limit = params.limit || 16;
 	
 	var list = {userId: this.userId};
+	var records, userId, user;
 	// if (Roles.userIsInRole(this.userId, ['admin'], 'admGroup'))
 		// list = {personal: true};
 	
 	// data = Settings.find(list, {sort: {createdAt: -1}, limit: params.limit});
 	// if (!data.count())
-		
-	var records = MeteorBlogCollections.Blog.find({username: {$exists: false}}).fetch();
+	
+
+	
+	records = MeteorBlogCollections.Blog.find({username: {$exists: false}}).fetch();
 	_.each(records, (record)=>{
-		var userId = record.userId;
-		var user = Meteor.users.findOne(record.userId);
-		if (user)
-			MeteorBlogCollections.Blog.update(record._id, {$set: {username: user.username}});
-		else
-			MeteorBlogCollections.Blog.update(record._id, {$set: {username: 'anonymous'}});
+		try{
+			userId = record.userId;
+			user = Meteor.users.findOne(record.userId);
+			if (user)
+				MeteorBlogCollections.Blog.update(record._id, {$set: {username: user.username}});
+			else
+				MeteorBlogCollections.Blog.update(record._id, {$set: {username: 'anonymous'}});
+		} catch(e){
+			console.warn('[meteor blog] err:', e, '\nrecord:', record, '\nuser:', userId, user, '\n');
+		}
 	});
 	var userId = this.userId || params.userId;
 	if (!Roles.userIsInRole(this.userId, ['admin'], 'admGroup')) 
@@ -35,7 +42,9 @@ Meteor.publish('push', function(params) {
 	var data = MeteorBlogCollections.Blog.find(list, {sort: {createdAt: -1}, limit: params.limit});
 	if (data.count())
 		console.log('publush blog', this.userId, data.fetch()[0].username, list, data.count(),'\n');
-	return data;
+	return data;		
+
+
 });
 Meteor.publish('blog', function(params) {
 	var params = params || {};

@@ -5,7 +5,7 @@
 	{{#if isInRole 'admin' 'admGroup'}}
 		<section id="typeBtn" class="animated fadeIn">
 			<div class="row">
-				<div class="col-auto">
+				<div class="col-auto col-xs-12">
 					<div class="btn-group" role="group" aria-label="Blog Content Type">
 						{{#each typeBtn}}
 							<a href="/blog?select={{id}}"><button type="button" id="{{id}}" {{disabled}} class="btn btn-outline-{{color}} typeBtn">{{title}}</button></a>
@@ -15,16 +15,18 @@
 			</div>
 		</section>
 	{{/if}}
-	<section id="blogIt" class="animated fadeIn">
+	<section id="blogIt" class="animated fadeIn text-center">
 		{{> Template.dynamic template=selector.val data=data}}
 	</section>
 </template>
 
 <template name="blogTags">
-	<section id="blogTags" class="animated fadeIn">
+	<section id="blogTags" class="animated fadeIn">	
+		<p>
 		{{#each tags}}
 			<a href="/blog?tag={{_id}}"><span class="badge badge-light">{{_id}}</span></a> 
 		{{/each}}
+		</p>
 	</section>
 </template>
 
@@ -32,10 +34,10 @@
 	<section id="blogContent" class="animated fadeIn">
 		{{#with tag}}
 			<div class="row">	
-				<div class="col-12 h1">
+				<div class="col-12 col-xs-12 h1">
 					<div class="badge badge-info">{{this}}</div>
 					{{#if isInRole 'admin' 'admGroup'}}
-						<div class="btn btn-outline-info pullMore">Pull More</div>
+						<div class="btn btn-bluish btn-outline-info pullMore">Pull More</div>
 						{{#if request}}
 							<div class="pointer spinner-border text-primary abscenter" role="status">
 								<span class="sr-only">getting data ready</span>
@@ -48,9 +50,9 @@
 
 		<div class="row ">
 			{{#each posts}}		
-				<div class="col-12 col-sm-6 col-md-4 p-3 animated fadeInUp blogPost">
+				<div class="col-12 col-xs-12 col-sm-6 col-md-4 p-3 animated fadeInUp blogPost">
 					<div id="" class="mediumimg">
-						<a href="/blog/post/{{postid}}"><img src="{{img}}" class="thumbnail img-fluid" /></a>
+						<a href="/blog/post/{{postid}}"><img src="{{img}}" class="thumbnail img-fluid  img-responsive" /></a>
 					</div>
 					<div id="" class="mediumtitle h4 p-2">
 						<a href="/blog/post/{{postid}}">{{title}}</a>
@@ -61,7 +63,7 @@
 				</div>		
 			{{else}}
 				{{#unless ready}}
-					<div class="col-12 h2 text-center p-5">
+					<div class="col-12 col-xs-12 h2 text-center p-5">
 						<div class="pointer spinner-border text-primary abscenter" role="status">
 							<span class="sr-only">getting data ready</span>
 						</div>		
@@ -72,10 +74,10 @@
 		</div>
 
 		<div class="row align-items-center justify-content-center">
-			<div class="col-auto p-3">
+			<div class="col-auto col-xs-12 p-3 overflow-hidden">
 				<a href="?more={{more}}">
-					<div id="infiniteCheck" class="loadMore linkwhitewhite pointer toOne">
-						<i class="fa fa-chevron-circle-down fa-5x" aria-hidden="true"></i>
+					<div id="infiniteCheck" class="loadMore linkwhitewhite pointer toOne overflow-hidden">
+						<p><i class="fa fa-chevron-circle-down fa-5x" aria-hidden="true"></i></p>
 					</div>
 				</a>
 			</div>
@@ -86,14 +88,14 @@
 </template>
 
 <template name="blogImage">
-	<img src="{{img}}" class="img-fluid" />
+	<img src="{{img}}" class="img-fluid img-responsive" />
 </template>
 
 <template name="blogPost">
 	{{#if isInRole 'admin' 'admGroup'}}
 		<section id="menupick" class="text-center animated fadeIn pb-5">
 			<div class="row">
-				<div class="col-auto">
+				<div class="col-auto col-xs-12">
 					<div class="btn-group" role="group" aria-label="Blog Content Type">
 						{{#each typeBtn}}
 							<a href="/blog?select={{id}}">
@@ -107,11 +109,11 @@
 	{{/if}}
 	<section id="blogPost" class="animated fadeIn blogPost">
 		<div class="row text-left align-items-center justify-content-center ">				
-			<div class="col-md-8 col-12">					
+			<div class="col-md-8 col-12 col-xs-12">					
 				{{#with post}}		
 					<div class="row">				
-						<div class="col-12">
-							<img src="{{img}}" border="0" align="left" class="img-fluid"/>
+						<div class="col-12 col-xs-12">
+							<img src="{{img}}" border="0" align="left" class="img-fluid  img-responsive"/>
 							{{#if author}}
 								<a href="/blog?select=edit&post={{_id}}" class="floatRight">
 									<div class="btn btn-xs btn-outline-info"><b>Edit</b></div>
@@ -120,30 +122,30 @@
 						</div>
 					</div>						
 					<div class="row">		
-						<div class="col-12">
+						<div class="col-12 col-xs-12">
 							<h2>{{title}}</h2>
 						</div>
 					</div>									
 					<div class="row small text-muted pb-3">		
-						<div class="col-12">
+						<div class="col-12 col-xs-12">
 							<div class=""><br/>Published on {{date}} by {{creator.name}} </div> 
 							{{#if aggregated}}
 								<div class="">at <a href="{{original}}" target=_blank>{{original}}</a></div>
 								{{#if isInRole 'admin' 'admGroup'}}
 									<div class="row">	
-										<div class="col-auto">
+										<div class="col-auto col-xs-3">
 											<div class="custom-control custom-switch" data-toggle="tooltip" data-placement="top" title="Don't pull from this author anymore">
 												<input type="checkbox" class="custom-control-input" {{checkedUser}} id="ban">
 												<label class="custom-control-label" for="ban">Ban</label>
 											</div>		
 										</div>		
-										<div class="col-auto">
+										<div class="col-auto col-xs-3">
 											<div class="custom-control custom-switch" data-toggle="tooltip" data-placement="top" title="Publish in local blog">
 												<input type="checkbox" class="custom-control-input" {{checkedDraft}} id="draft">
 												<label class="custom-control-label" for="draft">Publish</label>
 											</div>
 										</div>
-										<div class="col-auto">
+										<div class="col-auto col-xs-3">
 											<div class="custom-control custom-switch" data-toggle="tooltip" data-placement="top" title="Hide this article">
 												<input type="checkbox" class="custom-control-input" {{checkedHide}} id="blacklist">
 												<label class="custom-control-label" for="blacklist">Hide</label>
@@ -156,12 +158,13 @@
 					</div>
 					
 					<div class="row">	
-						<div class="col-12">
-							{{{html}}}
+						<div class="col-12 col-xs-12">
+<!-- 							{{{html}}} -->
+							{{>blogPostContent}}
 						</div>	
 					</div>							
 					<div class="row">	
-						<div class="col-12">
+						<div class="col-12 col-xs-12">
 							{{#each tags}}
 									<a href="/blog?tag={{this}}"><div class="badge badge-light">{{this}}</div></a> 
 							{{/each}}
@@ -174,10 +177,31 @@
 	{{>blogBottom}}
 </template>
 
+<template name="blogPostContent">
+	<section id="blogPostContent" class="animated fadeInLeft">
+		<div class="row text-left align-items-center justify-content-center">		
+			{{#each paragraphs}}		
+				<div class="col-12 col-xs-12">
+					<p id="{{name}}">
+						<span class="{{markup}}">{{text}}</span>
+					</p>
+					{{#with metadata}}
+						<p id="{{name}}" class="">
+							<img src="{{img}}" class="img-fluid  img-responsive" />
+						</p>
+					{{/with}}
+				</div>		
+			{{else}}
+				{{{html}}}
+			{{/each}}
+		</div>					
+	</section>
+</template>
+
 <template name="blogBottom">
 	<section id="blogBottom" class="animated fadeInLeft">
 		<div class="row text-left align-items-center justify-content-center">		
-			<div class="col-12 col-sm-6 col-md-4 p-5">
+			<div class="col-12 col-xs-12 col-sm-6 col-md-4 p-5">
 				<div id="blogLikes" class="h2 text-muted">
 					<i class="pointer fa fa-thumbs-o-up up" aria-hidden="true"></i> people			
 					<i class="pointer fa fa-thumbs-o-down down" aria-hidden="true"></i> people 
@@ -186,9 +210,9 @@
 		</div>
 		<div class="row text-left align-items-center justify-content-center">		
 			{{#each posts}}		
-				<div class="col-12 col-sm-6 col-md-4 p-5">
-					<div id="mediumimg" class="img-fluid">
-						<a href="/blog/post/{{postid}}"><img src="{{img}}" class="img-fluid" /></a>
+				<div class="col-12 col-xs-12 col-sm-6 col-md-4 p-5">
+					<div id="mediumimg" class="img-fluid ">
+						<a href="/blog/post/{{postid}}"><img src="{{img}}" class="img-fluid  img-responsive" /></a>
 					</div>
 					<div id="mediumtitle" class="mediumtitle h4 p-2">
 						<a href="/blog/post/{{postid}}">{{title}}</a>
@@ -199,7 +223,7 @@
 				</div>		
 			{{else}}
 				{{#unless ready}}
-					<div class="col-12 h2 text-center p-5">
+					<div class="col-12 col-xs-12 h2 text-center p-5">
 						<div class="pointer spinner-border text-primary abscenter" role="status">
 							<span class="sr-only">getting data ready</span>
 						</div>		
@@ -213,7 +237,7 @@
 <template name="blogEdit">
 	<section id="blogEdit" class="blogPost">
 	<!-- 	<div class="row">
-			<div class="col-12 animated fadeIn text-center pb-5">
+			<div class="col-12 col-xs-12 animated fadeIn text-center pb-5">
 				{{#each services}}
 					<div class="button btn btn-{{active}} btn-sm service connect{{service}}" rel="publisher" data-toggle="tooltip" title="connect to {{service}}">
 						<i class="connected fa fa-{{service}}"></i>
@@ -225,7 +249,7 @@
 			</div>
 		</div> -->
 		<div class="row animated fadeIn ">
-			<div class="col-12">
+			<div class="col-12 col-xs-12">
 				<div id="mediumtitle" class="mededitable mediumtitle h3 p-2"><!-- {{title}} --></div>
 				<div id="mediumtext" class="droppable mededitable mediumtext p-2"><!-- {{html}} --></div>
 			</div>
@@ -233,19 +257,19 @@
 
 		{{#with post}}
 			<div class="row animated fadeIn pb-5">
-				<div class="col-12">
+				<div class="col-12 col-xs-12">
 					{{#autoForm collection=collection schema=schema id="datePushForm" doc=this afFieldInput-placeholder="schemaLabel" type="update" autosave=true}}
 						{{> afQuickField name='_id' type="hidden"}}
 						{{> afQuickField name='postid' type="hidden"}}
 						{{> afQuickField name='tags' label='tags' afFieldInput-placeholder="schemaLabel" }}
 						<div class="row animated fadeIn">
-							<div class="col-auto">
+							<div class="col-auto col-xs-3">
 								{{> afQuickField name='scheduledAt' label='Scheduled at' }}
 							</div>	
-							<div class="col-auto">
+							<div class="col-auto col-xs-3">
 								{{> afQuickField name='draft' afFieldInput-placeholder="schemaLabel" }}
 							</div>
-<!-- 							<div class="col-auto">
+<!-- 							<div class="col-auto col-xs-3">
 								<button class="btn btn-primary schedule" type="submit">OK</button>
 							</div> -->
 						</div>
@@ -258,7 +282,7 @@
 		{{/with}}
 
 	<!-- 	<div class="row">
-			<div class="col-12 fontlarge20">
+			<div class="col-12 col-xs-12 fontlarge20">
 				<div class="btn btn-info btn-lg newpush" href="#" data-toggle="tooltip" title="Click to create new Post">New</div>
 			</div>
 		</div> -->
@@ -543,7 +567,7 @@
 <template name="blogAggregated">
 	<section id="blogAggregated" class=" animated fadeIn">
 		<div class="row align-items-left justify-content-center ">		
-			<div class="col-12 pt-2 pb-2">				
+			<div class="col-12 col-xs-12 pt-2 pb-2">				
 				{{> quickForm schema=schema id="pullMediumForm" template="bootstrap3-inline" doc=doc afFieldInput-placeholder="schemaLabel" type="normal" meteormethod="social.medium.pull.tag"}}		
 				{{#if request}}
 					<div class="pointer spinner-border text-primary abscenter" role="status">
@@ -555,9 +579,9 @@
 		<div class="h3">Draft Aggregated Posts</div>
 		<div class="row align-items-center justify-content-center ">
 			{{#each posts}}		
-				<div class="col-12 col-sm-6 col-md-4 pb-5 animated fadeIn">
+				<div class="col-12 col-xs-12 col-sm-6 col-md-4 pb-5 animated fadeIn blogPost">
 					<div id="mediumimg" class="img-fluid">
-						<a href="/blog/post/{{postid}}"><img src="{{img}}" class="img-fluid" /></a>
+						<a href="/blog/post/{{postid}}"><img src="{{img}}" class="img-fluid  img-responsive" /></a>
 					</div>
 					<div id="mediumtitle" class="mediumtitle h4 p-2">
 						<a href="/blog/post/{{postid}}">{{title}}</a>
@@ -565,30 +589,35 @@
 					<div id="mediumtext" class="mediumtext p-2">
 						{{{htmlCut}}}
 					</div>
-					<div class="btn btn-sm btn-danger hide">Hide</div> <div class="btn btn-sm btn-danger ban">Ban</div>
+					<div>
+						<div class="btn btn-sm btn-danger hideIt" data-toggle="tooltip" data-placement="top" title="Hide this article">Hide</div> 
+						<div class="btn btn-sm btn-danger banIt" data-toggle="tooltip" data-placement="top" title="Don't pull from this author anymore">Ban</div>					
+					</div>
 				</div>		
 			{{else}}
 				{{#unless ready}}
-					<div class="col-12 h2 text-center p-5">
+					<div class="col-12 col-xs-12 h2 text-center p-5">
 						<div class="pointer spinner-border text-primary abscenter" role="status">
 							<span class="sr-only">getting data ready</span>
 						</div>		
 						getting blog posts
 					</div>
 				{{else}}
-					<div class="col-12 com-md-4 animated fadeIn text-center">
+					<div class="col-12 col-xs-12 com-md-4 animated fadeIn text-center">
 						No new posts were discovered
 					</div>					
-					<div class="col-12 col-md-4 animated fadeIn">
-						<img src="https://res.cloudinary.com/orangry/image/upload/v1553669638/hundredgraphs/no_news.jpg" class="img-fluid"/>
+					<div class="col-12 col-xs-12 animated fadeIn">
+						<img src="https://res.cloudinary.com/orangry/image/upload/v1553669638/hundredgraphs/no_news.jpg" class="w-100 img-fluid  img-responsive"/>
 					</div>
 				{{/unless}}
 			{{/each}}
 		</div>
 		{{#if ready}}
 			<div class="row align-items-center justify-content-center">
-				<div class="col-auto p-3">
-					<div id="infiniteCheck" class="more linkwhitewhite pointer toOne"><i class="fa fa-chevron-circle-down fa-5x" aria-hidden="true"></i></div>
+				<div class="col-auto col-xs-12 p-3">
+					<div id="infiniteCheck" class="more linkwhitewhite pointer toOne">
+						<p><i class="fa fa-chevron-circle-down fa-5x" aria-hidden="true"></i></p>
+					</div>
 				</div>
 			</div>
 		{{/if}}

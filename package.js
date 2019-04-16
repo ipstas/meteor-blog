@@ -11,7 +11,7 @@ Package.describe({
 });
 
 Package.onUse(function(api) {
-  api.versionsFrom('1.8.0.2');
+  api.versionsFrom('1.8');
   api.use('ecmascript');
 
   api.mainModule('server.js','server');//,{lazy: true});
@@ -35,16 +35,20 @@ Package.onUse(function(api) {
 		'templating',
 		'blaze',
 		'underscore',
+		'reactive-dict',
 		'aldeed:autoform',
 		//'aldeed:autoform-bs-datetimepicker',
 		//'aldeed:autoform-bs-datepicker',
-		'mediumeditor:mediumeditor'
+		'mediumeditor:mediumeditor',
+		//'ipstas:flow-router-seo'
+		//'tomwasd:flow-router-seo'
 	]);
 	
 	api.addFiles([
 		'client/blog.css',
 	], 'client');
 	
+	api.export('MeteorBlogCollections', 'server');
 });
 
 Package.onTest(function(api) {

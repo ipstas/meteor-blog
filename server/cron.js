@@ -38,8 +38,8 @@ const job3 = new CronJob({
      * at 11:30:00 AM. It does not run on Saturday
      * or Sunday.
      */		 
-		await Meteor.call('social.twitter.search', function(err,res){
-			console.warn('\n\n*** \ncron social.twitter.search', err, res, '\n\n***');
+		await Meteor.call('social.twitter.search', function(e,r){
+			console.warn('\n\n*** \ncron social.twitter.search', e, r, '\n\n***');
 		});
   },
   start: false,
@@ -57,7 +57,7 @@ const job5 = new CronJob({
 		 */
 		 
 		await Meteor.call('social.medium.pull.tag',{q: 'Smart Home'},(e,r)=>{
-			if (err) console.warn('ERR [cron] social.medium.pull.tag', e, r);
+			if (e) console.warn('ERR [cron] social.medium.pull.tag', e, r);
 			console.log('[cron] social.medium.pull.tag', r, r);
 		});
 	},

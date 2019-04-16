@@ -16,7 +16,11 @@
 .mediumtext .w100{
 	width: 100%
 }
+.blogPost{
+	overflow: hidden;
+}
 .blogPost p {
+	font-size: 16px;
 	padding-bottom: 5px;
 	padding-top: 5px;
 }
