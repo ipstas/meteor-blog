@@ -562,7 +562,7 @@
 	<section id="blogAggregated" class=" animated fadeIn">
 		<div class="row align-items-left justify-content-center ">		
 			<div class="col-12 col-xs-12 pt-2 pb-2">				
-				{{> quickForm schema=schema id="pullMediumForm" template="bootstrap3-inline" doc=doc afFieldInput-placeholder="schemaLabel" type="normal" meteormethod="social.medium.pull.tag"}}		
+				{{> quickForm schema=schema id="pullMediumForm" template="bootstrap3-inline" doc=doc afFieldInput-placeholder="schemaLabel" type="normal" }}		
 				{{#if request}}
 					<div class="pointer spinner-border text-primary abscenter" role="status">
 						<span class="sr-only">getting data ready</span>
@@ -622,51 +622,56 @@
 	<section id="blogSettings" class="text-left">
 		<div class="h2">Editors</div>
 		<div class="row bold">
-			<div class="col-xs-6"> 
+			<div class="col-xs-6 col-6"> 
 				Username
 			</div>
-			<div class="col-xs-6"> 
+			<div class="col-xs-6 col-6"> 
 				Email
 			</div>
 		</div>
 		{{#each editors}}
 			<div class="row  fontsmaller">
-				<div class="col-xs-6 "  id="{{_id}}"> 
+				<div class="col-xs-6 col-6"> 
 					{{username}}
 				</div>	
-				<div class="col-xs-6 "  id="{{_id}}"> 
+				<div class="col-xs-6 col-6"> 
 					{{#each emails}}{{address}} {{/each}}
 				</div>	
 			</div>
 		{{/each}}		
-		<div class="h2">Cron pulls</div>
+		<div class="h2"><span >Daily pulls</span> <div class="btn btn-info btn-outline-info editRecord">Edit</div> </div>
 		<div class="row bold">
-			<div class="col-xs-6"> 
+			<div class="col-xs-6 col-6"> 
 				Authors
 			</div>
-			<div class="col-xs-6"> 
+			<div class="col-xs-6 col-6"> 
 				Tags
 			</div>
 		</div>
 		
 		<div class="row fontsmaller">
 			{{#with settings}}
-				<div class="col-xs-6 "  id="{{_id}}"> 
-					{{#each author}}			
-						<span class="editAuthors">{{this}}	</span>
-					{{/each}}
-				</div>			
-				<div class="col-xs-6 "  id="{{_id}}"> 
-					{{#each tag}}
-						<span class="editTags">{{this}} </span>						
-					{{/each}}
-				</div>	
-				{{#autoForm collection=collection schema=schema id="newBlogPullAuthor" doc=this afFieldInput-placeholder="schemaLabel" type="update"}}
-					{{> afQuickField name='_id' type='hidden'}}
-					{{> afQuickField name='author' }}
-					{{> afQuickField name='tag' }}
-					<button class="btn btn-primary schedule" type="submit">OK</button> 
-				{{/autoForm}}				
+				{{#unless editRecord }}
+					<div class="col-xs-6 col-6"  id="{{_id}}"> 
+						{{#each author}}			
+							<span class="editRecord pointer editAuthors">{{this}} </span>
+						{{/each}}
+					</div>			
+					<div class="col-xs-6 col-6"  id="{{_id}}"> 
+						{{#each tag}}
+							<span class="editRecord pointer editTags">{{this}} </span>						
+						{{/each}}
+					</div>	
+				{{else}}
+					<div class="col-xs-12 col-12"  id="{{_id}}"> 
+						{{#autoForm collection=collection schema=schema id="updBlogPull" doc=this afFieldInput-placeholder="schemaLabel" type="update"}}
+		<!-- 					{{> afQuickField name='_id' type='hidden'}} -->
+							{{> afQuickField name='author' }}
+							{{> afQuickField name='tag' }}
+							<button class="btn btn-primary schedule" type="submit">OK</button> 
+						{{/autoForm}}				
+					</div>
+				{{/unless}}
 			{{else}}
 				{{#autoForm collection=collection schema=schema id="newBlogPullAuthorTag" afFieldInput-placeholder="schemaLabel" type="insert"}}
 					{{> afQuickField name='author' }}

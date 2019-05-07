@@ -343,8 +343,11 @@ Template.blogContent.events({
 		Meteor.call('social.medium.pull.tag',{q: this.valueOf()},(e,r)=>{
 			if (e) Bert.alert(doc.action + ' ' + e.error, 'danger');
 			console.log('[hooksPullMedium] e:', e, '\nr', r);
-			if (r && r.inserted)
-				Bert.alert('received ' + r.inserted + 'new articles', 'info');
+			if (r && r.inserted){	
+				Bert.alert('received ' + r.inserted + 'new articles', 'success');
+				FlowRouter.go('/blog?select=aggregated');
+			} else
+				Bert.alert('No new articles', 'info');
 			Session.set('request');
 		})		
 	},
@@ -533,7 +536,6 @@ Template.blogPost.helpers({
 		let params = {caller: 'blogPost.helpers', creatorUser: user.creatorUser, postid: this.postid, debug: Session.get('debug')};
 		Meteor.call('social.medium.pull.story', params, (e,r)=>{console.log('[social.medium.pull.story]', e,r)});	
 		console.log('[blogPost.helpers] original', params, this, '\n'); 
-
 	},
 	debug(){
 		//var data = MeteorBlogCollections.Blog.findOne(FlowRouter.getQueryParam('push'));
@@ -1725,6 +1727,7 @@ Template.blogAggregated.events({
 
 Template.blogSettings.onCreated(function () {
   let t = Template.instance();
+	t.editRecord = new ReactiveVar();3
 	t.autorun(function(){
 		PostSubs.subscribe('blogeditors',{
 			caller: 'blogSettings.onCreated',
@@ -1751,8 +1754,10 @@ Template.blogSettings.helpers({
 		const data = MeteorBlogCollections.BlogSettings.findOne();
 		return data;
 	},
-	user(){
-		return Meteor.user();
+	editRecord(){
+		let t = Template.instance();
+		//console.log('editRecord', t.editRecord.get());
+		return t.editRecord.get();
 	},
 	collection(){
 		return MeteorBlogCollections.BlogSettings;
@@ -1760,24 +1765,14 @@ Template.blogSettings.helpers({
 	schema(){
 		return MeteorBlogSchemas.BlogSettings
 	},
-	options(){
-		var user = Meteor.user();
-		//if (!user || !user.services || !user.services.facebook || !user.services.facebook.acoounts)
-			//return console.warn('no user accounts', user.services.facebook);
-		var options = user.services.facebook.accounts;
-
-    var map = _.map(options, function (c) {
-      return {label: c.name, value: c.id};
-    });
-		console.log('options', options, map);
-		return map;
-	}
 });
 Template.blogSettings.events({
-	'click facebook'(e,t){
-		FB.login(function(response) {
-			console.log(response);
-		}, {scope: 'email,user_likes,publish_actions,publish_pages'});		
+	'click .editRecord'(e, t) {
+		console.log('[landing.js] editRecord', this);
+		t.editRecord.set(!t.editRecord.get());
+	},
+	'submit'(e,t){
+		t.editRecord.set();
 	},
 });
 

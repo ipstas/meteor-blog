@@ -311,7 +311,7 @@ Meteor.methods({
 		if (Meteor.isClient) return;
 		this.unblock;
 		params = params || {};
-		var res, content, json, slc = 0, string, posts, creator, doc, inserted;
+		var res, content, json, slc = 0, string, posts, creator, doc, inserted = 0;
 		let date = new Date();
 		//console.log('[social.medium.pull.tag]', params, '\n\n');
 
@@ -374,16 +374,16 @@ Meteor.methods({
 					else
 						doc.image = ['https://res.cloudinary.com/orangry/image/upload/c_thumb,w_600,g_face/v1553633438/hundredgraphs/news.jpg'];
 
-					inserted = MeteorBlogCollections.Blog.insert(doc);
+					MeteorBlogCollections.Blog.insert(doc);
+					inserted++;
 					if (params.debug) console.log('[social.medium.pull.tag] inserted:', post.id, post.title, inserted);
-					n++;
 				});
 				await console.log('[social.medium.pull.tag]:', Date.now() - date, 'msec', 'posts:', (_.toArray(posts)).length, 'inserted:', n, '\n\n');
 				return await {found: (_.toArray(posts)), inserted: n, posts: posts, json: json};
 			} catch (e) {
-				await console.warn('ERR social.medium.pull.tag error', params, e, string, '\n');
-				throw new Meteor.Error('social.medium.pull.tag err', e);
-				return await {err: e, res: res, json: json, posts: posts};
+				console.warn('ERR social.medium.pull.tag error', params, e, string, '\n');
+				throw new Meteor.Error(e.message);
+				//return await {err: e, res: res, json: json, posts: posts};
 			}
 		}
 		return main();
@@ -392,7 +392,7 @@ Meteor.methods({
 		if (Meteor.isClient) return;
 		this.unblock;
 		if (!params) return;
-		let res, json, out, post, user, inserted, updated, httpres;
+		let res, json, out, post, user, inserted = 0, updated, httpres;
 	
 		if (params.postid)
 			params.url = 'https://medium.com/@' + params.creatorUser + '/' + params.postid;
@@ -449,14 +449,16 @@ Meteor.methods({
 						doc.image = ['https://cdn-images-1.medium.com/max/1200/' + post.virtuals.previewImage.imageId ];
 					else
 						doc.image = ['https://res.cloudinary.com/orangry/image/upload/c_thumb,w_600,g_face/v1553633438/hundredgraphs/news.jpg'];
-					inserted = MeteorBlogCollections.Blog.insert(doc);				
+					MeteorBlogCollections.Blog.insert(doc);		
+					inserted++;
 				});
 						
 				await console.log('[social.medium.pull.article] inserted:', post.id, post.title, inserted);
 				return await {inserted: inserted, posts: posts, json: json, user: user};
 			} catch (e) {
-				console.warn('[social.medium.pull.article] getPost error', e, '\nERR params:', params, '\n\n');
-				return await {err: e, res: res, json: json};
+				console.warn('[social.medium.pull.article] getPost error', e.Error, e.message, e.reason, '\n', e, '\nERR params:', params, '\n\n');
+				//return {err: e.message, res: res, json: json};
+				throw new Meteor.Error(e.message);
 			}
 		}
 		
@@ -467,7 +469,7 @@ Meteor.methods({
 		if (Meteor.isClient) return;
 		this.unblock;
 		if (!params) return;
-		let res, json, out, posts, user, inserted, updated, httpres;
+		let res, json, out, posts, user, inserted = 0, updated, httpres, post = {};
 	
 		params.url = 'https://medium.com/@' + params.author + '/latest';
 			
@@ -528,14 +530,16 @@ Meteor.methods({
 						doc.image = ['https://cdn-images-1.medium.com/max/1200/' + post.virtuals.previewImage.imageId ];
 					else
 						doc.image = ['https://res.cloudinary.com/orangry/image/upload/c_thumb,w_600,g_face/v1553633438/hundredgraphs/news.jpg'];
-					inserted = MeteorBlogCollections.Blog.insert(doc);				
+					MeteorBlogCollections.Blog.insert(doc);			
+					inserted++;
 				});
 						
 				await console.log('[social.medium.pull.author] inserted:', post.id, post.title, inserted);
-				return await {inserted: inserted, post: post, json: json, user: user};
+				return await {inserted: inserted, posts: posts, json: json, user: user};
 			} catch (e) {
 				console.warn('[social.medium.pull.author] getPost error', e, '\nERR params:', params, '\n\n');
-				return await {err: e, res: res, json: json};
+				throw new Meteor.Error(e.message);
+				//return await {err: e, res: res, json: json};
 			}
 		}
 		
@@ -603,7 +607,8 @@ Meteor.methods({
 				return post;
 			} catch (e) {
 				console.warn('[social.medium.pull.story] main error', e, '\nERR params:', params, post, '\n\n');
-				return await {err: e, res: res, json: json};
+				throw new Meteor.Error(e.message);
+				//return await {err: e, res: res, json: json};
 			}
 		}		
 		
@@ -630,8 +635,9 @@ Meteor.methods({
 				return await user;
 			} catch (e) {
 				console.warn('[social.medium.pull.user] error', e);
+				throw new Meteor.Error(e.message);
 				//throw new Meteor.Error(400, '[social.medium.pull.user] err', e);
-				return await {err: e, res: res, json: json};
+				//return await {err: e, res: res, json: json};
 			}
 		}
 		return main();

@@ -65,26 +65,40 @@ export const hooksPullMedium = {
 		Session.setPersistent('defaultQ', doc.q);
 		if (doc.action == 'tag')
 			Meteor.call('social.medium.pull.tag',{q: doc.q},(e,r)=>{
-				if (e) Bert.alert(doc.action + ' ' + e.error, 'danger');
 				console.log('[hooksPullMedium] e:', e, '\nr', r);
+				if (e || r.err) Bert.alert(doc.action + ' ' + e.error, 'danger');
+				else if (r) Bert.alert('pulled ' + r.inserted + ' new articles');			
 				Session.set('request');
-				if (r && r.inserted)
-					Bert.alert('received ' + r.inserted + 'new articles', 'info');
+				// if (r && r.inserted)
+					// Bert.alert('received ' + r.inserted + 'new articles', 'info');
 			})
 		else if (doc.action == 'post')
 			Meteor.call('social.medium.pull.article',{url: doc.q},(e,r)=>{
-				if (e) Bert.alert(doc.action + ' ' + e.error, 'danger');
 				console.log('[hooksPullMedium] e:', e, '\nr', r);
+				if (e || r.err) Bert.alert(doc.action + ' ' + e.error, 'danger');
+				else if (r) Bert.alert('pulled ' + r.inserted + ' new articles');				
 				Session.set('request');
 			})			
 		else if (doc.action == 'author')
 			Meteor.call('social.medium.pull.author',{author: doc.q},(e,r)=>{
-				if (e) Bert.alert(doc.action + ' ' + e.error, 'danger');
 				console.log('[hooksPullMedium] e:', e, '\nr', r);
+				if (e || r.err) Bert.alert(doc.action + ' ' + e.error, 'danger');
+				else if (r) Bert.alert('pulled ' + r.inserted + ' new articles');			
 				Session.set('request');
-			})			
+			})		
 		this.done();
 		return false;
-	}
+	},
+/* 	onSuccess: function (doc) {
+		console.log("onSuccess hooksPullMedium", this, '\ndoc:', doc);
+		this.event.preventDefault();
+		if (window.analytics)
+			analytics.track('blog_pulled', {
+				referrer: document.referrer,
+				category: "administrative",
+				label: this.formId
+			});
+		return false;
+	}, */
 };
 AutoForm.addHooks(null, hooksObject);
