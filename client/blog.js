@@ -6,6 +6,7 @@ import 'jquery-ui-bundle';
 //import {FlowRouterSEO} from 'meteor/tomwasd:flow-router-seo';
 //const SEO = new  FlowRouterSEO;
 //import 'meteor/aldeed:autoform-bs-datetimepicker';
+import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
 import {MediumEditor} from 'meteor/mediumeditor:mediumeditor';
 //import MediumEditorInsert from 'medium-editor-insert-plugin';
@@ -263,7 +264,11 @@ Template.blogContent.helpers({
 	},
 	posts(){
 		let t = Template.instance();
-		let data = MeteorBlogCollections.Blog.find({scheduledAt: {$lt: new Date()}, draft:{$ne: true}},{sort: {scheduledAt: -1}});
+		let tag = FlowRouter.getQueryParam('tag');
+		let list = {scheduledAt: {$lt: new Date()}, draft:{$ne: true}};
+		if (tag)
+			list.tags = tag;
+		let data = MeteorBlogCollections.Blog.find(list,{sort: {scheduledAt: -1}});
 		if (data.count()) 
 			window.IS_RENDERED = true;
 
@@ -707,13 +712,18 @@ Template.blogEdit.onRendered(function () {
 		//if (!t.data) return;
 		let self = MeteorBlogCollections.Blog.findOne({_id: t.data._id});
 		if(!self) return;
+		let set;
 		//console.log('[blogEdit.onRendered] data:', self, $('#mediumtitle'));
 		$('#mediumtitle').text(self.title);
 		$('#mediumtext').html(self.html);
 		blogEditor();	
 		editor.subscribe('editableInput', function (event, editable) {
-			console.log('[blogEdit.onRendered] editableInput:', self, '\nevent:', event.target.innerHTML, event, editable);
-			MeteorBlogCollections.Blog.update({_id: self._id},{$set:{html: event.target.innerHTML}});
+			if ($(event.target).hasClass('mediumtitle'))
+				set = {title: event.target.innerText}
+			else
+				set = {html: event.target.innerHTML}
+			console.log('[blogEdit.onRendered] editableInput:', self, '\nevent:', $(event.target).hasClass('mediumtitle'), event.target.innerHTML, event, editable);
+			MeteorBlogCollections.Blog.update({_id: self._id},{$set: set});
 		});				
 		computation.stop();
 	})
@@ -989,7 +999,8 @@ Template.blogStatus.events({
 
 });
 
-Template.blogSettings.onCreated(function () {
+
+Template.blogSocial.onCreated(function () {
 	//Meteor.subscribe('services');
   let t = Template.instance();
 	t.showTele = new ReactiveVar();
@@ -998,10 +1009,10 @@ Template.blogSettings.onCreated(function () {
 		console.log('social.facebook.roles', err, res);
 	});	
 });
-Template.blogSettings.onRendered(function () {
+Template.blogSocial.onRendered(function () {
 	let t = Template.instance();
 });
-Template.blogSettings.helpers({
+Template.blogSocial.helpers({
 	services(){
 		var data = ServiceConfiguration.configurations.find();
 		console.log('connectAccounts', data.fetch());
@@ -1052,7 +1063,7 @@ Template.blogSettings.helpers({
 		return map;
 	}
 });
-Template.blogSettings.events({
+Template.blogSocial.events({
 	'click facebook'(e,t){
 		FB.login(function(response) {
 			console.log(response);
@@ -1711,4 +1722,63 @@ Template.blogAggregated.events({
 		console.log('[blogAggregated.events] submit', e, this);
 	} */
 });
+
+Template.blogSettings.onCreated(function () {
+  let t = Template.instance();
+	t.autorun(function(){
+		PostSubs.subscribe('blogeditors',{
+			caller: 'blogSettings.onCreated',
+			all: true,
+			debug: Session.get('debug')
+		});		
+		PostSubs.subscribe('blogsettings',{
+			caller: 'blogSettings.onCreated',
+			all: true,
+			debug: Session.get('debug')
+		});
+	})	
+});
+Template.blogSettings.onRendered(function () {
+	let t = Template.instance();
+});
+Template.blogSettings.helpers({
+	editors(){
+		const list = {$or: [{roles: 'admin'}, {roles:'editor'}]};
+		const data = Meteor.users.find(list, {sort: {createdAt: -1}});
+		return data;
+	},
+	settings(){
+		const data = MeteorBlogCollections.BlogSettings.findOne();
+		return data;
+	},
+	user(){
+		return Meteor.user();
+	},
+	collection(){
+		return MeteorBlogCollections.BlogSettings;
+	},
+	schema(){
+		return MeteorBlogSchemas.BlogSettings
+	},
+	options(){
+		var user = Meteor.user();
+		//if (!user || !user.services || !user.services.facebook || !user.services.facebook.acoounts)
+			//return console.warn('no user accounts', user.services.facebook);
+		var options = user.services.facebook.accounts;
+
+    var map = _.map(options, function (c) {
+      return {label: c.name, value: c.id};
+    });
+		console.log('options', options, map);
+		return map;
+	}
+});
+Template.blogSettings.events({
+	'click facebook'(e,t){
+		FB.login(function(response) {
+			console.log(response);
+		}, {scope: 'email,user_likes,publish_actions,publish_pages'});		
+	},
+});
+
 

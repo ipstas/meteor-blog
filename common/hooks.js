@@ -77,6 +77,12 @@ export const hooksPullMedium = {
 				console.log('[hooksPullMedium] e:', e, '\nr', r);
 				Session.set('request');
 			})			
+		else if (doc.action == 'author')
+			Meteor.call('social.medium.pull.author',{author: doc.q},(e,r)=>{
+				if (e) Bert.alert(doc.action + ' ' + e.error, 'danger');
+				console.log('[hooksPullMedium] e:', e, '\nr', r);
+				Session.set('request');
+			})			
 		this.done();
 		return false;
 	}

@@ -2,7 +2,7 @@
 	<section id="blogItTags" class="animated fadeIn">
 		{{>blogTags}}
 	</section>
-	{{#if isInRole 'admin' 'admGroup'}}
+	{{#if isInRole 'admin,editor' 'admGroup'}}
 		<section id="typeBtn" class="animated fadeIn">
 			<div class="row">
 				<div class="col-auto col-xs-12">
@@ -79,7 +79,7 @@
 					<div id="infiniteCheck" class="loadMore linkwhitewhite pointer">
 						<p><i class="fa fa-chevron-circle-down fa-5x" aria-hidden="true"></i></p>
 					</div>				
-					</a>
+				</a>
 			</div>
 		</div>
 
@@ -109,7 +109,7 @@
 	{{/if}}
 	<section id="blogPost" class="animated fadeIn blogPost">
 		<div class="row text-left align-items-center justify-content-center ">				
-			<div class="col-md-8 col-12 col-xs-12">					
+			<div class="col-12 col-xs-12 col-sm-offset-1 col-sm-10 col-md-offset-3 col-md-6">					
 				{{#with post}}		
 					<div class="row">				
 						<div class="col-12 col-xs-12">
@@ -350,7 +350,7 @@
 	</section>
 </template>
 
-<template name="blogSettings">
+<template name="blogSocial">
 	<section id="blogSettings">
 	<div class="row text-center">
 		<div class="col-xs-3"> 
@@ -387,8 +387,6 @@
 			<div class="col-xs-4"> 
 				{{#if connected}}
 					{{#if $eq service 'facebook'}}
-<!-- 								{{facebook}}
-						{{> quickForm id="privacyForm2" schema=schema doc=facebook type="method" meteormethod="user.privacy.facebook" template="bootstrap3-inline" afFieldInput-placeholder="schemaLabel"}} -->
 						{{#autoForm id="settingsFBForm" template="bootstrap3" doc=facebook schema=schema type="method" meteormethod="blog.settings.facebook" autosave=true}}
 							{{> afFormGroup name="privacy" type="select" }}	
 							{{> afFormGroup  name="account" type="select" options=options}}	
@@ -443,9 +441,7 @@
 					{{> afQuickField name='services.telegram.channel' placeholder='telegram channel name' label-class="sr-only" }}
 					{{> afQuickField name='services.telegram.token' placeholder='channel token' label-class="sr-only" }}
 					<button type="submit" class="btn btn-default" data-dismiss="modal">Update</button>
-				{{/autoForm}}						
-			
-			
+				{{/autoForm}}							
 			{{/if}}
 		</div>
 		<div class="col-xs-3"> 
@@ -469,9 +465,7 @@
 			{{#if $eq editselector "newRecord"}}		
 				{{> quickForm collection="Faq" type="insert" id="insertFaqForm" label=false label-class="hidden" afFieldInput-placeholder="schemaLabel" }}				
 			{{else}}
-
 				<button id="newRecord" class="button btn btn-info editselector">new</button>
-
 			{{/if}}
 		</div>
 	</div>
@@ -624,4 +618,63 @@
 	</section>
 </template>
 
+<template name="blogSettings">
+	<section id="blogSettings" class="text-left">
+		<div class="h2">Editors</div>
+		<div class="row bold">
+			<div class="col-xs-6"> 
+				Username
+			</div>
+			<div class="col-xs-6"> 
+				Email
+			</div>
+		</div>
+		{{#each editors}}
+			<div class="row  fontsmaller">
+				<div class="col-xs-6 "  id="{{_id}}"> 
+					{{username}}
+				</div>	
+				<div class="col-xs-6 "  id="{{_id}}"> 
+					{{#each emails}}{{address}} {{/each}}
+				</div>	
+			</div>
+		{{/each}}		
+		<div class="h2">Cron pulls</div>
+		<div class="row bold">
+			<div class="col-xs-6"> 
+				Authors
+			</div>
+			<div class="col-xs-6"> 
+				Tags
+			</div>
+		</div>
+		
+		<div class="row fontsmaller">
+			{{#with settings}}
+				<div class="col-xs-6 "  id="{{_id}}"> 
+					{{#each author}}			
+						<span class="editAuthors">{{this}}	</span>
+					{{/each}}
+				</div>			
+				<div class="col-xs-6 "  id="{{_id}}"> 
+					{{#each tag}}
+						<span class="editTags">{{this}} </span>						
+					{{/each}}
+				</div>	
+				{{#autoForm collection=collection schema=schema id="newBlogPullAuthor" doc=this afFieldInput-placeholder="schemaLabel" type="update"}}
+					{{> afQuickField name='_id' type='hidden'}}
+					{{> afQuickField name='author' }}
+					{{> afQuickField name='tag' }}
+					<button class="btn btn-primary schedule" type="submit">OK</button> 
+				{{/autoForm}}				
+			{{else}}
+				{{#autoForm collection=collection schema=schema id="newBlogPullAuthorTag" afFieldInput-placeholder="schemaLabel" type="insert"}}
+					{{> afQuickField name='author' }}
+					{{> afQuickField name='tag' }}
+					<button class="btn btn-primary schedule" type="submit">OK</button> 
+				{{/autoForm}}			
+			{{/with}}
+		</div>
+	</section>
+</template>
 

@@ -15,7 +15,40 @@ MeteorBlogCollections.BlogImages = new Mongo.Collection('pkg_meteor_blogimages')
 MeteorBlogCollections.BlogUsers = new Mongo.Collection('pkg_meteor_blogusers');
 MeteorBlogCollections.BlogServices = new Mongo.Collection('pkg_meteor_blogservices');
 MeteorBlogCollections.BlogTags = new Mongo.Collection('pkg_meteor_blogtags');
+MeteorBlogCollections.BlogSettings = new Mongo.Collection('pkg_meteor_blogsettings');
 
+
+MeteorBlogSchemas.BlogSettings = new SimpleSchema({
+  'author': {
+    type: Array,
+		optional: true
+  },  
+  'author.$': {
+    type: String,
+  },  
+	'tag': {
+    type: Array,
+		optional: true
+  },	
+	'tag.$': {
+    type: String,
+  },	
+});
+MeteorBlogCollections.BlogSettings.attachSchema(MeteorBlogSchemas.BlogSettings);
+MeteorBlogCollections.BlogSettings.allow({
+  insert: function (userId, doc) {
+		if (Roles.userIsInRole(userId, ['admin', 'editor'], 'admGroup') || Roles.userIsInRole(userId, ['admin', 'editor'])) 
+			return true;
+  },
+  update: function (userId, doc) {
+		if (Roles.userIsInRole(userId, ['admin', 'editor'], 'admGroup') || Roles.userIsInRole(userId, ['admin', 'editor'])) 
+			return true;
+  },
+  remove: function (userId, doc) {
+		if (Roles.userIsInRole(userId, ['admin', 'editor'], 'admGroup') || Roles.userIsInRole(userId, ['admin', 'editor'])) 
+			return true;
+  }
+});
 
 MeteorBlogSchemas.BlogServices = new SimpleSchema({
   'type': {
@@ -363,7 +396,7 @@ MeteorBlogSchemas.BlogPullMedium = new SimpleSchema({
 	'action': {
 		type: String,
 		optional: true,		
-		allowedValues: ['tag','post'],
+		allowedValues: ['tag','post','author'],
 		autoform: {
 			type: 'select', 
 		}

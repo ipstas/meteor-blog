@@ -2,6 +2,24 @@ import '../common/collections.js';
 import {MeteorBlogCollections} from '../common/collections.js';
 import {MeteorBlogSchemas} from '../common/collections.js';
 
+Meteor.publish('blogeditors', function(params) {	
+	var params = params || {};
+	params.limit = params.limit || 100;
+/* 	if (!Roles.userIsInRole(this.userId, ['admin'], 'admGroup'))
+		return []; */
+	
+	const list = {$or: [{roles: 'admin'}, {roles:'editor'}]};
+
+	var data = Meteor.users.find(list, {sort: {createdAt: -1}, limit: params.limit, fields: {services: 0}});
+	//var data = Meteor.users.find(list);
+	if (params.debug) console.log('[publush] blogeditors', this.userId, list, data.count(),'\n');
+	return data;
+});
+Meteor.publish('blogsettings', function(params) {	
+	var data = MeteorBlogCollections.BlogSettings.find();
+	if (params.debug) console.log('[publush] blogsettings', this.userId, data.count(),'\n');
+	return data;
+});
 Meteor.publish('push', function(params) {
 	//Push.remove({token:[]},{multi:1});
 	var params = params || {};
@@ -90,6 +108,7 @@ Meteor.publish('blogusers', function(params) {
 	if (params.debug) console.log('[publush] blogusers', this.userId, list, data.count(),'\n');
 	return data;
 });
+
 Meteor.publish('blogimages', function(params) {	
 	var params = params || {};
 	params.limit = params.limit || 16;

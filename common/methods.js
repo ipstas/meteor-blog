@@ -405,7 +405,7 @@ Meteor.methods({
 					params: {format: 'json'}
 				});
 				json = await JSON.parse(res.content.split('</x>')[1]);
-				post = await json.payload.value;
+				posts = await json.payload.value;
 
 				await _.each(json.payload.references.User, (User)=>{			
 					user = {
@@ -418,7 +418,7 @@ Meteor.methods({
 					if (params.debug) console.log('[social.medium.pull.article] user:', user);
 				});
 				
-				await _.each(post,(Post)=>{
+				await _.each(posts,(post)=>{
 					if (post.detectedLanguage != 'en' && post.detectedLanguage != 'ru' && post.detectedLanguage != 'de') 
 						return console.warn('[social.medium.pull.article] lang:', post.detectedLanguage, post.title);
 					else if (MeteorBlogCollections.BlogUsers.find({creatorId: post.creatorId, ban: true},{limit: 1}).count() ) 
@@ -453,9 +453,88 @@ Meteor.methods({
 				});
 						
 				await console.log('[social.medium.pull.article] inserted:', post.id, post.title, inserted);
-				return await {inserted: inserted, post: post, json: json, user: user};
+				return await {inserted: inserted, posts: posts, json: json, user: user};
 			} catch (e) {
 				console.warn('[social.medium.pull.article] getPost error', e, '\nERR params:', params, '\n\n');
+				return await {err: e, res: res, json: json};
+			}
+		}
+		
+		return main(params);
+
+	},
+	'social.medium.pull.author'(params){
+		if (Meteor.isClient) return;
+		this.unblock;
+		if (!params) return;
+		let res, json, out, posts, user, inserted, updated, httpres;
+	
+		params.url = 'https://medium.com/@' + params.author + '/latest';
+			
+		if (params.debug) console.log('[social.medium.pull.author] 0', params.creatorId, params.title, '\nIN', params, '\n\n**');
+		
+		async function main(params){
+			try {
+				res = await HTTP.get(params.url, {
+					params: {format: 'json'}
+				});
+				json = await JSON.parse(res.content.split('</x>')[1]);
+				
+				await console.log('[social.medium.pull.author] user:', json);
+				
+				//return json;
+				
+				posts = await json.payload.references.Post;
+
+				await _.each(json.payload.references.User, (User)=>{			
+					user = {
+						creatorId: User.userId, 
+						creatorUser: User.username,
+						creatorName: User.name,
+						creatorAvatar: User.imageId				
+					}
+					user._id = MeteorBlogCollections.BlogUsers.upsert({creatorId: user.creatorId},{$set: user});
+					if (params.debug) console.log('[social.medium.pull.author] user:', user);
+				});
+				
+				await _.each(posts,(post)=>{
+					if (post.detectedLanguage != 'en' && post.detectedLanguage != 'ru' && post.detectedLanguage != 'de') 
+						return console.warn('[social.medium.pull.author] lang:', post.detectedLanguage, post.title);
+					else if (MeteorBlogCollections.BlogUsers.find({creatorId: post.creatorId, ban: true},{limit: 1}).count() ) 
+						return console.warn('[social.medium.pull.author] ban:', post.creatorId, post.title);
+					else if (MeteorBlogCollections.Blog.find({id: post.id},{limit: 1}).count() ) 
+						return; //console.warn('[social.medium.pull.author] exists:', post.id, post.title);
+
+					creator = MeteorBlogCollections.BlogUsers.upsert({creatorId: post.creatorId},{$set:{creatorId: post.creatorId}});
+					if (creator > 1)
+						MeteorBlogCollections.BlogUsers.update({creatorId: post.creatorId},{addToSet:{services: 'medium'}});
+
+					post.updatedAt = post.updatedAt || post.createdAt;
+					doc = {
+						aggregated: true, 
+						blacklist: false,
+						id: post.id,
+						postid: post.uniqueSlug,
+						title: post.title,
+						html: post.previewContent.subTitle,
+						draft: true,
+						scheduledAt: new Date(post.updatedAt),
+						createdAt: new Date(post.createdAt),
+						userId: post.creatorId,
+						detectedLanguage: post.detectedLanguage,
+						tags: _.flatten(_.pluck(post.virtuals.tags,'slug')),
+					};			
+					if (post.virtuals.previewImage.imageId)
+						doc.image = ['https://cdn-images-1.medium.com/max/1200/' + post.virtuals.previewImage.imageId ];
+					else
+						doc.image = ['https://res.cloudinary.com/orangry/image/upload/c_thumb,w_600,g_face/v1553633438/hundredgraphs/news.jpg'];
+					inserted = MeteorBlogCollections.Blog.insert(doc);				
+				});
+						
+				await console.log('[social.medium.pull.author] inserted:', post.id, post.title, inserted);
+				return await {inserted: inserted, post: post, json: json, user: user};
+			} catch (e) {
+				console.warn('[social.medium.pull.author] getPost error', e, '\nERR params:', params, '\n\n');
 				return await {err: e, res: res, json: json};
 			}
 		}

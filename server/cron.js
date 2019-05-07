@@ -30,6 +30,24 @@ let cron;
   // timeZone: 'America/Chicago'
 // });
 
+const runJob = function(){
+	let pulls = MeteorBlogCollections.Blogsettings.find().fetch();
+	if (pulls.tag.length != 0)
+		_.each(pulls.tag, (tag)=>{
+			Meteor.call('social.medium.pull.tag',{q: tag},(e,r)=>{
+				if (e) console.warn('ERR [cron] social.medium.pull.tag', e, r);
+				console.log('[cron] social.medium.pull.tag', tag, r);
+			});				
+		});
+	if (pulls.author.length != 0)
+		_.each(pulls.author, (author)=>{
+			Meteor.call('social.medium.pull.author',{author: author},(e,r)=>{
+				if (e) console.warn('ERR [cron] social.medium.pull.author', e, r);
+				console.log('[cron] social.medium.pull.author', author, r);
+			});				
+		});		
+}
+
 const job3 = new CronJob({
   cronTime: '00 00 */6 * * *',
   onTick: async function() {
@@ -55,11 +73,7 @@ const job5 = new CronJob({
 		 * at 10:30:00 AM. It does not run on Saturday
 		 * or Sunday.
 		 */
-		 
-		await Meteor.call('social.medium.pull.tag',{q: 'Smart Home'},(e,r)=>{
-			if (e) console.warn('ERR [cron] social.medium.pull.tag', e, r);
-			console.log('[cron] social.medium.pull.tag', r, r);
-		});
+		await runJob();
 	},
 	start: false,
 	timeZone: 'America/Chicago'

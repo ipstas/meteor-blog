@@ -1,6 +1,6 @@
 Package.describe({
   name: 'ipstas:meteor-blog',
-  version: '0.0.2',
+  version: '0.0.5',
   // Brief, one-line summary of the package.
   summary: 'Simple meteor blog',
   // URL to the Git repository containing the source code for this package.
@@ -51,9 +51,9 @@ Package.onUse(function(api) {
 	api.export('MeteorBlogCollections', 'server');
 });
 
-Package.onTest(function(api) {
+/* Package.onTest(function(api) {
   api.use('ecmascript');
   api.use('tinytest');
   api.use('ipstas:meteor-blog');
   api.mainModule('meteor-blog-tests.js');
-});
+}); */
