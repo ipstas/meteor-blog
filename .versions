@@ -29,7 +29,7 @@ html-tools@1.0.11
 htmljs@1.0.11
 id-map@1.1.0
 inter-process-messaging@0.1.0
-ipstas:meteor-blog@0.0.3
+ipstas:meteor-blog@0.0.5
 jquery@1.11.9
 livedata@1.0.18
 logging@1.1.20

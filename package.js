@@ -1,6 +1,6 @@
 Package.describe({
   name: 'ipstas:meteor-blog',
-  version: '0.0.5',
+  version: '0.0.6',
   // Brief, one-line summary of the package.
   summary: 'Simple meteor blog',
   // URL to the Git repository containing the source code for this package.
@@ -41,7 +41,6 @@ Package.onUse(function(api) {
 		//'aldeed:autoform-bs-datepicker',
 		'mediumeditor:mediumeditor@5.2.0',
 		//'tomwasd:flow-router-seo',
-		//'tomwasd:flow-router-seo'
 	]);
 	
 	api.addFiles([

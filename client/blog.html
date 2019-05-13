@@ -92,7 +92,7 @@
 </template>
 
 <template name="blogPost">
-	{{#if isInRole 'admin' 'admGroup'}}
+	{{#if isInRole 'admin,editor' 'admGroup'}}
 		<section id="menupick" class="text-center animated fadeIn pb-5">
 			<div class="row">
 				<div class="col-auto col-xs-12">
