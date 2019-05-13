@@ -36,7 +36,7 @@
 			<div class="row">	
 				<div class="col-12 col-xs-12 h1">
 					<div class="badge badge-info">{{this}}</div>
-					{{#if isInRole 'admin' 'admGroup'}}
+					{{#if isInRole 'admin,editor' 'admGroup'}}
 						<div class="btn btn-bluish btn-outline-info pullMore">Pull More</div>
 						{{#if request}}
 							<div class="pointer spinner-border text-primary abscenter" role="status">
@@ -92,7 +92,7 @@
 </template>
 
 <template name="blogPost">
-	{{#if isInRole 'admin,editor' 'admGroup'}}
+	{{#if isInRole 'admin, editor' 'admGroup'}}
 		<section id="menupick" class="text-center animated fadeIn pb-5">
 			<div class="row">
 				<div class="col-auto col-xs-12">
@@ -131,7 +131,7 @@
 							<div class=""><br/>Published on {{date}} by {{creator.name}} </div> 
 							{{#if aggregated}}
 								<div class="">at <a href="{{original}}" target=_blank>{{original}}</a></div>
-								{{#if isInRole 'admin' 'admGroup'}}
+								{{#if isInRole 'admin, editor' 'admGroup'}}
 									<div class="row">	
 										<div class="col-auto col-xs-3">
 											<div class="custom-control custom-switch" data-toggle="tooltip" data-placement="top" title="Don't pull from this author anymore">
