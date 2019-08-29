@@ -31,15 +31,15 @@ let cron;
 // });
 
 const runJob = function(){
-	let pulls = MeteorBlogCollections.Blogsettings.find().fetch();
-	if (pulls.tag.length != 0)
+	let pulls = MeteorBlogCollections.BlogSettings.find().fetch();
+	if (pulls && pulls.tag && pulls.tag.length != 0)
 		_.each(pulls.tag, (tag)=>{
 			Meteor.call('social.medium.pull.tag',{q: tag},(e,r)=>{
 				if (e) console.warn('ERR [cron] social.medium.pull.tag', e, r);
 				console.log('[cron] social.medium.pull.tag', tag, r);
 			});				
 		});
-	if (pulls.author.length != 0)
+	if (pulls && pulls.author && pulls.author.length != 0)
 		_.each(pulls.author, (author)=>{
 			Meteor.call('social.medium.pull.author',{author: author},(e,r)=>{
 				if (e) console.warn('ERR [cron] social.medium.pull.author', e, r);

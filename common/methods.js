@@ -289,11 +289,12 @@ Meteor.methods({
 	'blog.aggregate.tags'(params){
 		if (Meteor.isClient) return;
 		let pipeline = [
-		{$facet: {
-			"tags": [
-				{ $unwind: "$tags" },
-				{ $sortByCount: "$tags" }
-			],}
+			{$match : { draft: false }},
+			{$facet: {
+				"tags": [
+					{ $unwind: "$tags" },
+					{ $sortByCount: "$tags" }
+				],}
 		}];
 /* 		pipeline = [
 			{ $unwind: "$tags"},
@@ -343,7 +344,8 @@ Meteor.methods({
 					posts = json.references.Post;
 				
 				await _.each(posts, (post)=>{		
-					if (post.detectedLanguage != 'en' && post.detectedLanguage != 'ru' && post.detectedLanguage != 'de') 
+					//if (post.detectedLanguage != 'en' && post.detectedLanguage != 'ru' && post.detectedLanguage != 'de') 
+					if (post.detectedLanguage != 'en') 
 						return console.warn('[social.medium.pull.tag] lang:', post.detectedLanguage, post.title);
 					else if ( MeteorBlogCollections.BlogUsers.find({creatorId: post.creatorId, ban: true},{limit: 1}).count() ) 
 						return console.warn('[social.medium.pull.tag] ban:', post.creatorId, post.title);
