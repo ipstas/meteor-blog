@@ -80,8 +80,8 @@ const job5 = new CronJob({
 });
 
 Meteor.startup(function(){
-	let job = job5.start();
-	console.log('[cron] startup job:', job);
+	//let job = job5.start();
+	//console.log('[cron] startup job:', job);
 });
 
 //console.log('[cron] imported:', job5);

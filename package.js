@@ -1,6 +1,6 @@
 Package.describe({
   name: 'ipstas:meteor-blog',
-  version: '0.0.8',
+  version: '0.0.9',
   // Brief, one-line summary of the package.
   summary: 'Simple meteor blog',
   // URL to the Git repository containing the source code for this package.
@@ -22,21 +22,21 @@ Package.onUse(function(api) {
 		//'bootstrap-datepicker': '1.8.0',
 		//'cloudinary': '1.13.2',
 		//'medium-editor': '5.23.3',
-		'jquery-ui-bundle': '1.12.1-migrate',
-		'cron': '1.7.0',
+		//'jquery-ui-bundle': '1.12.1-migrate',
+		//'cron': '1.7.0',
 		//'medium-editor-insert-plugin': '2.5.1'
 		//'eonasdan-bootstrap-datetimepicker': '4.17.47'
 	});
 	
 	api.use([
-		'ecmascript',
-		'check',
-		'mongo',
-		'templating@1.3.0',
-		'blaze@2.3.0',
-		'underscore',
-		'reactive-dict',
-		'aldeed:autoform@6.3.0',
+		//'ecmascript',
+		//'check',
+		//'mongo',
+		//'templating@1.3.0',
+		//'blaze@2.3.0',
+		//'underscore',
+		//'reactive-dict',
+		//'aldeed:autoform@6.3.0',
 		//'aldeed:autoform-bs-datetimepicker',
 		//'aldeed:autoform-bs-datepicker',
 		'mediumeditor:mediumeditor@5.2.0',

@@ -20,7 +20,7 @@ Meteor.publish('blogsettings', function(params) {
 	if (params.debug) console.log('[publush] blogsettings', this.userId, data.count(),'\n');
 	return data;
 });
-Meteor.publish('push', function(params) {
+Meteor.publish('blogpush', function(params) {
 	//Push.remove({token:[]},{multi:1});
 	var params = params || {};
 	params.limit = params.limit || 16;
