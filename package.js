@@ -1,6 +1,6 @@
 Package.describe({
   name: 'ipstas:meteor-blog',
-  version: '0.0.10',
+  version: '0.0.11',
   // Brief, one-line summary of the package.
   summary: 'Simple meteor blog',
   // URL to the Git repository containing the source code for this package.
@@ -28,14 +28,14 @@ Package.onUse(function(api) {
 	});
 	
 	api.use([
-		'ecmascript@0.1.0',
-		'check@1.0.0',
-		'mongo@1.4.0',
-		'templating@1.0.0',
+		'ecmascript',
+		'check',
+		'mongo',
+		'templating',
 		'blaze@2.0.0',
 		'mediumeditor:mediumeditor@5.0.0',
 		'underscore@1.0.0',
-		'aldeed:autoform@5.0.0'
+		'aldeed:autoform@6.0.0'
 		//'reactive-dict',
 		//'aldeed:autoform-bs-datetimepicker',
 		//'aldeed:autoform-bs-datepicker',

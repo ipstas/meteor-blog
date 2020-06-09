@@ -26,7 +26,7 @@ geojson-utils@1.0.10
 htmljs@1.0.11
 id-map@1.1.0
 inter-process-messaging@0.1.1
-ipstas:meteor-blog@0.0.9
+ipstas:meteor-blog@0.0.10
 jquery@1.0.2
 livedata@1.0.18
 logging@1.1.20
