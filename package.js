@@ -31,10 +31,10 @@ Package.onUse(function(api) {
 		'ecmascript',
 		'check',
 		'mongo',
-		'templating',
+		'underscore',
+		'templating@1.3.2',
 		'blaze@2.0.0',
-		'mediumeditor:mediumeditor@5.0.0',
-		'underscore@1.0.0',
+		'mediumeditor:mediumeditor@5.0.0',		
 		'aldeed:autoform@6.0.0'
 		//'reactive-dict',
 		//'aldeed:autoform-bs-datetimepicker',
