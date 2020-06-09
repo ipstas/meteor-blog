@@ -11,11 +11,10 @@ Package.describe({
 });
 
 Package.onUse(function(api) {
-  api.versionsFrom(['1.6','1.8']);
-  api.use('ecmascript');
+	api.versionsFrom(['1.6','1.8']);
 
-  api.mainModule('server.js','server');//,{lazy: true});
-  api.mainModule('client.js','client');//,{lazy: true});	
+	api.mainModule('server.js','server');//,{lazy: true});
+	api.mainModule('client.js','client');//,{lazy: true});	
 	//api.mainModule('common.js',['client','server']);//,{lazy: true});
 	
 	Npm.depends({
@@ -29,18 +28,17 @@ Package.onUse(function(api) {
 	});
 	
 	api.use([
-		//'ecmascript',
-		//'check',
-		//'mongo',
-		//'templating@1.3.0',
-		//'blaze@2.3.0',
-		//'underscore',
+		'ecmascript@0.1.0',
+		'check@1.0.0',
+		'mongo@1.4.0',
+		'templating@1.0.0',
+		'blaze@2.0.0',
+		'mediumeditor:mediumeditor@5.0.0',
+		'underscore@1.0.0',
+		'aldeed:autoform@5.0.0'
 		//'reactive-dict',
-		//'aldeed:autoform@6.3.0',
 		//'aldeed:autoform-bs-datetimepicker',
 		//'aldeed:autoform-bs-datepicker',
-		'mediumeditor:mediumeditor@5.2.0',
-		//'tomwasd:flow-router-seo',
 	]);
 	
 	api.addFiles([

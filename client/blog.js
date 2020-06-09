@@ -16,7 +16,7 @@ import {MediumEditor} from 'meteor/mediumeditor:mediumeditor';
 import {MeteorBlogCollections} from '../common/collections.js';
 window.MeteorBlogCollections = MeteorBlogCollections;
 import {MeteorBlogSchemas} from '../common/collections.js';
-import './blog.html';
+import '../client/blog.html';
 const _LocalTags = new Mongo.Collection(null);
 
 import { hooksObject } from '../common/hooks.js';

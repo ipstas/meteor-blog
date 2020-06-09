@@ -9,6 +9,7 @@ import './client/functions.js';
 import './client/blog.js';
 
 
+
 //console.log('[ipstas:meteor-blog] client imported:', name, this);
 
 // Variables exported by this module can be imported by other packages and
