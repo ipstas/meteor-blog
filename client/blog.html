@@ -191,7 +191,10 @@
 					{{/with}}
 				</div>		
 			{{else}}
-				<p><img src="{{img}}" border="0" align="left" class="img-fluid  img-responsive"/></p>
+				{{#if img}}
+					<p><img src="{{img}}" border="0" align="left" class="img-fluid  img-responsive"/></p>
+					
+				{{/if}}
 				{{{html}}}
 			{{/each}}
 		</div>					
@@ -260,7 +263,8 @@
 				<div class="col-12 col-xs-12">
 					{{#autoForm collection=collection schema=schema id="datePushForm" doc=this afFieldInput-placeholder="schemaLabel" type="update" autosave=true}}
 						{{> afQuickField name='_id' type="hidden"}}
-						{{> afQuickField name='postid' type="hidden"}}
+						<!-- {{> afQuickField name='postid' type="hidden"}} --> 
+						{{> afQuickField name='postid' label='Post ID'}}
 						{{> afQuickField name='tags' label='tags' afFieldInput-placeholder="schemaLabel" }}
 						<div class="row animated fadeIn">
 							<div class="col-auto col-xs-3">

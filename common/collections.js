@@ -51,7 +51,7 @@ MeteorBlogCollections.BlogSettings.allow({
 });
 
 MeteorBlogSchemas.BlogServices = new SimpleSchema({
-  'type': {
+	'type': {
     type: String,
   },  
 	'text': {
@@ -185,8 +185,7 @@ MeteorBlogSchemas.Blog = new SimpleSchema({
 	},  
 	postid: {
 		type: String,
-		index: true,
-		optional: true,
+		index: true
 	},    
 	type: {
 		type: String,

@@ -694,8 +694,8 @@ Template.blogEdit.onCreated(function () {
 	let t = Template.instance();
 	t.mediumeditor = new ReactiveVar();
   
-  t.subscribe('blogservice');
-  t.subscribe('bloguser');
+	t.subscribe('blogservice');
+	t.subscribe('bloguser');
 	t.ready = new ReactiveVar();
 	t.limit = new ReactiveVar(16);
 	t.loaded = new ReactiveVar();

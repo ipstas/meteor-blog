@@ -2,6 +2,7 @@ import '../common/collections.js';
 import {MeteorBlogCollections} from '../common/collections.js';
 import {MeteorBlogSchemas} from '../common/collections.js';
 
+
 Meteor.publish('blogeditors', function(params) {	
 	var params = params || {};
 	params.limit = params.limit || 100;
@@ -68,14 +69,15 @@ Meteor.publish('blog', function(params) {
 	var params = params || {};
 	params.limit = params.limit || 16;
 	params.languages = params.languages || ['en'];
+	params.languages.push('en', '');
 	
 	var list = {};
 	var options = {sort: {scheduledAt: -1}, limit: params.limit};
 	if (params.blog) {
-		list = {draft: false, scheduledAt: {$lt: new Date}, detectedLanguage: {$in: params.languages}};
+		list = {draft: false, scheduledAt: {$lt: new Date}, $or: [{detectedLanguage: {$in: params.languages}}, {detectedLanguage:{ $exists : false }}]};
 		if (params.tag)
 			list.tags = params.tag;
-	}	else if (params.aggregated) {
+	} else if (params.aggregated) {
 		list = {aggregated: true, draft: true, blacklist: false};
 	} else if (params._id)
 		list = params._id;	
@@ -85,12 +87,13 @@ Meteor.publish('blog', function(params) {
 		list = {};	
 	else if (Roles.userIsInRole(this.userId, ['admin'], 'admGroup'))
 		list = {};
-	else
+	else 
 		list = {userId: this.userId};
+
 	
 	var data = MeteorBlogCollections.Blog.find(list, options);
 	if (params.debug) 
-		console.log('[publish] blog', params, this.userId, list, data.count(), '\n');
+		console.log('[publish] blog', params, this.userId, '\nlist:', list, data.count(), '\n');
 
 	return data;
 });
