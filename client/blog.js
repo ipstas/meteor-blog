@@ -617,6 +617,8 @@ Template.blogPostContent.helpers({
 	},
 	img(){
 		console.log('[blogPostContent] img', this);
+		if (!this.aggregated)
+			return;
 		let url = 'https://cdn-images-1.medium.com/max/1000/' + this.id;
 		return url;
 	}

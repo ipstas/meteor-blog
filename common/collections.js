@@ -185,7 +185,8 @@ MeteorBlogSchemas.Blog = new SimpleSchema({
 	},  
 	postid: {
 		type: String,
-		index: true
+		index: true,
+		optional: true
 	},    
 	type: {
 		type: String,
