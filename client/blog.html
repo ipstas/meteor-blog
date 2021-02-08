@@ -191,10 +191,12 @@
 					{{/with}}
 				</div>		
 			{{else}}
-				{{#if img}}
-					<p><img src="{{img}}" border="0" align="left" class="img-fluid  img-responsive"/></p>					
-				{{/if}}
-				{{{html}}}
+				<div class="col-12 col-xs-12">
+					{{#if img}}
+						<p><img src="{{img}}" border="0" align="left" class="img-fluid  img-responsive"/></p>					
+					{{/if}}
+					{{{html}}}
+				</div>
 			{{/each}}
 		</div>					
 	</section>
