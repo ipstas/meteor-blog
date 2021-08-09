@@ -19,20 +19,20 @@ MeteorBlogCollections.BlogSettings = new Mongo.Collection('pkg_meteor_blogsettin
 
 
 MeteorBlogSchemas.BlogSettings = new SimpleSchema({
-  'author': {
-    type: Array,
+	'author': {
+		type: Array,
 		optional: true
-  },  
-  'author.$': {
-    type: String,
-  },  
+	},  
+	'author.$': {
+		type: String,
+	},  
 	'tag': {
-    type: Array,
+		type: Array,
 		optional: true
-  },	
+	},	
 	'tag.$': {
-    type: String,
-  },	
+		type: String,
+	},	
 });
 MeteorBlogCollections.BlogSettings.attachSchema(MeteorBlogSchemas.BlogSettings);
 MeteorBlogCollections.BlogSettings.allow({
@@ -60,18 +60,18 @@ MeteorBlogSchemas.BlogServices = new SimpleSchema({
 	'services': {
     type: String,
   },
-  'createdAt': {
-    type: Date,
-    label: 'Date',
-    autoValue: function () {
-      if (this.isInsert) {
-        return new Date();
-      }
-    },
-    autoform: {
+	'createdAt': {
+	type: Date,
+		label: 'Date',
+		autoValue: function () {
+			if (this.isInsert) {
+				return new Date();
+			}
+		},
+		autoform: {
 			omit: true,
-    }
-  },  
+		}
+	},  
 	'scheduledAt': {
     type: Date,
     label: 'Date',
@@ -186,7 +186,8 @@ MeteorBlogSchemas.Blog = new SimpleSchema({
 	postid: {
 		type: String,
 		index: true,
-		optional: true
+		unique: true
+		//optional: true
 	},    
 	type: {
 		type: String,

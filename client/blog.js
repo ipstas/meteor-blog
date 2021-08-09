@@ -86,14 +86,18 @@ const blogEditor = function(){
 						'data-custom-attr': 'attr-value-h2'
 					}
 				},
-				
+				'orderedlist',
+				'unorderedlist',
+				'indent',
+				'outdent',
 				'justifyLeft',
 				'justifyCenter',
 				'justifyRight',
 				'removeFormat',
 				'quote',
 				'anchor',
-				'image'
+				'image',
+				'html'
 			]
 		},
 	});	
@@ -180,10 +184,17 @@ Template.blogIt.events({
 		FlowRouter.setQueryParams({push: push});
 	}, */
 	'click .typeBtn'(e, t) {
-		console.log('clicked cursor', e.target.id, this);		
+		console.log('[blogIt.events] clicked cursor', e.target.id, this);		
 		if (this.id == 'edit'){
 			e.preventDefault();
-			let inserted = MeteorBlogCollections.Blog.insert({title:'Title. Make it nice and meaningful', html:'click to start editing', draft: true, userId: Meteor.userId(), scheduledAt: new Date()});
+			let inserted = MeteorBlogCollections.Blog.insert({
+				postid: Random.id(5),
+				title:'Title. Make it nice and meaningful', 
+				html:'click to start editing', 
+				draft: true, 
+				userId: Meteor.userId(), 
+				scheduledAt: new Date()
+			});
 			FlowRouter.setQueryParams({select: 'edit', post: inserted});		
 			console.log('[blogIt.events] typeBtn', this, inserted);
 		} else if (this._id == 'content')
@@ -565,6 +576,7 @@ Template.blogPost.events({
 	},	
 	'change #draft'(e,t){
 		console.log('clicked draft', e.target.checked, this);
+		doc.postid = doc.title.replace(/[^\x00-\x7F]/g, '').replace(/\s+/g, '_') + '_' + Random.id(3);
 		MeteorBlogCollections.Blog.update({_id: this._id}, {$set: {draft: !e.target.checked}});
 	},
 	'click a'(){
@@ -726,22 +738,17 @@ Template.blogEdit.onRendered(function () {
 				set = {title: event.target.innerText}
 			else
 				set = {html: event.target.innerHTML}
-			console.log('[blogEdit.onRendered] editableInput:', self, '\nevent:', $(event.target).hasClass('mediumtitle'), event.target.innerHTML, event, editable);
+			if (self.postid.length <= 5) {
+				set.postid = set.title || self.title
+				set.postid = set.postid.replace(/[^\x00-\x7F]/g, '').replace(/\s+/g, '_') + '_' + self._id;
+				$('input[name=postid]').val(set.postid);
+			}
+			console.log('[blogEdit.onRendered] editableInput:', self.postid, self.postid.length, '\nself:', self, '\nevent:', $(event.target).hasClass('mediumtitle'), event.target.innerHTML, event, editable);
 			MeteorBlogCollections.Blog.update({_id: self._id},{$set: set});
 		});				
 		computation.stop();
 	})
 
- 
-/* 	let self = Template.currentData();
-	console.log('[blogEdit.onRendered] data', self, $('#mediumtitle'));
-	blogEditor();	
-	$('#mediumtitle').text(self.title);
-	$('#mediumtext').html(self.html);
-	editor.subscribe('editableInput', function (event, editable) {
-		console.log('[blogEdit.onRendered] editableInput', self, '\nevent:', event.target.innerHTML, event, editable);
-		MeteorBlogCollections.Blog.update({_id: self._id},{$set:{html: event.target.innerHTML}});
-	});		 */
 	console.log('[blogEdit.onRendered] mediumeditor', $('#mediumtext').html(), editor);			
 	
 });
@@ -792,7 +799,8 @@ Template.blogEdit.helpers({
 		return new Date(Date.now() + 1000*60*60*24);
 	},
 	post(){
-		return MeteorBlogCollections.Blog.findOne(this._id);
+		let post = MeteorBlogCollections.Blog.findOne(this._id);
+		return post;
 	},		
 	debug(){
 		console.log('[blogEdit.helpers] debug:', this);
@@ -838,7 +846,8 @@ Template.blogEdit.events({
 		doc.title = $('#mediumtitle').text();
 		doc.html = $('#mediumtext').html();	
 		doc.title = doc.title.replace(/\n|\r/g,'');
-		doc.postid = doc.title.replace(/[^\x00-\x7F]/g, '').replace(/\s+/g, '-') + '-' + Random.id(3);
+		if (doc?.postid?.length <= 5)
+			doc.postid = doc.postid || doc.title.replace(/[^\x00-\x7F]/g, '').replace(/\s+/g, '_') + '_' + Random.id(3);
 		doc.scheduledAt = new Date($( "input[name*='scheduledAt']" ).val());
 		doc.draft = $( "input[name*='draft']" ).is(':checked')
 		console.log('click schedule 2', this, doc);	
@@ -849,18 +858,6 @@ Template.blogEdit.events({
 		console.log('clicked remove', this, e, this.valueOf());
 		MeteorBlogCollections.Blog.update({_id: this._id},{$pull:{image: this.valueOf()}});
 	},
-/* 	'click .newpush'(e, t) {
-		var push = MeteorBlogCollections.Blog.insert({title:'Title. That will be used in Medium only for the url',html:'start editing'});
-		FlowRouter.setQueryParams({push: push});
-		console.log('clicked newpush', push);
-	} */
-	// 'click .mededitable'(e,t){
-		// if (event.target.id == 'mediumtitle')
-			// MeteorBlogCollections.Blog.update(FlowRouter.getQueryParam('push'),{$set:{title: event.target.innerText}});
-		// else if (event.target.id == 'mediumtext')
-			// MeteorBlogCollections.Blog.update(FlowRouter.getQueryParam('push'),{$set:{html: event.target.innerHTML, text: event.target.innerText}});		
-		// console.log('clicked mededitable', e,t);
-	// }
 });
 
 Template.blogQueue.onCreated(function () {
