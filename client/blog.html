@@ -297,28 +297,41 @@
 <template name="blogQueue">
 	<section id="blogQueue text-left">
 		<div class="row" style="background-color: #eee;">		
-			<div class="col-4 col-md-4" id="{{title}}">
+			<div class="col-1">
+				State
+			</div>			
+			<div class="col-3" id="{{title}}">
 				Title
 			</div>			
-			<div class="col-6 col-md-6">
+			<div class="col-5">
 				Text
 			</div>			
-			<div class="col-2 col-md-2">
+			<div class="col-2">
 				Scheduled
+			</div>
+			<div class="col-1">
+				
 			</div>
 		</div>
 		{{#each posts}}
-			<div class="row ">		
-				<div class="col-4 col-md-4  " id="{{title}}">
+			<div class="row {{bgColor}}">		
+				<div class="col-1">
+					{{state}}
+				</div>	
+				<div class="col-3" id="{{title}}">
 					<a href="/blog?select=edit&post={{_id}}">{{title}}</a>
 				</div>			
-				<div class="col-6 col-md-5  ">
+				<div class="col-5">
 					{{{htmlCut}}}
 				</div>			
-				<div class="col-2 col-md-3  ">
-					<div class="btn btn-sm btn-outline-danger remove" href="#" data-toggle="tooltip" title="Click to remove Post">Remove</div>
-					{{service}}<br/>
-					{{scheduledAt}}
+				<div class="col-2">			
+					{{localdate}}	<br/>		
+					{{service}}<br/>		
+				</div>
+				<div class="col-1">			
+					{{#if draft}} 
+						<div class="btn btn-sm btn-danger remove" href="#" data-toggle="tooltip" title="Click to remove Post">D</div>
+					{{/if}}
 				</div>
 			</div>
 			<hr/>

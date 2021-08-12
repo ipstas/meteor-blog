@@ -924,7 +924,16 @@ Template.blogQueue.helpers({
 		if (tags && tags.tags)
 			list.tags = {$in: tags.tags};
 		data = MeteorBlogCollections.Blog.find(list, sort);
+		console.log('[blogQueue.helpers] posts', data.fetch());
 		return data;
+	},
+	state(){
+		if (this.draft)
+			return 'draft';
+		else if (this.scheduledAt > new Date())
+			return 'scheduled';
+		else
+			return 'published';
 	},
 	htmlCut(){
 		let txt = $('img', $(this.html)).remove().end().text();
@@ -932,6 +941,14 @@ Template.blogQueue.helpers({
 		//console.log('[blogContent.helpers] htmlCut', txt, this.html);
 		return txt;	
 	},
+	localdate(){
+		console.log('localdate this.createdAt', this?.scheduledAt, this?.scheduledAt?.toLocaleDateString("en-US"));
+		return this?.scheduledAt?.toLocaleDateString("en-US");
+	},
+	bgColor(){
+		if (this.scheduledAt < new Date() && !this.draft)
+			return 'bg-success'
+	}
 });
 Template.blogQueue.events({
 	'click .remove'(e,t){
