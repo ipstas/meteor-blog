@@ -262,7 +262,7 @@
 		{{#with post}}
 			<div class="row animated fadeIn pb-5">
 				<div class="col-12 col-xs-12">
-					{{#autoForm collection=collection schema=schema id="datePushForm" doc=this afFieldInput-placeholder="schemaLabel" type="update" autosave=true}}
+					{{#autoForm id="datePushForm" collection=collection schema=schema doc=this afFieldInput-placeholder="schemaLabel" type="update" autosave=true}}
 						{{> afQuickField name='_id' type="hidden"}}
 						<!-- {{> afQuickField name='postid' type="hidden"}} --> 
 						{{> afQuickField name='postid' label='Post ID'}}
@@ -453,7 +453,7 @@
 		</div>
 		<div class="col-xs-4"> 
 			{{#if showTele}}
-				{{#autoForm collection="Meteor.users" doc=user id="telegramForm" type="update" autosave=true
+				{{#autoForm  id="telegramForm" collection="Meteor.users" doc=usertype="update" autosave=true
 					template="bootstrap3-inline" label=false label-class="sr-only" afFieldInput-placeholder="schemaLabel"
 				}}
 					{{> afQuickField name='services.telegram.channel' placeholder='telegram channel name' label-class="sr-only" }}
@@ -563,7 +563,7 @@
 <template name="blogImagesAdd">
 	<section id="blogImagesAdd">
 		<div class="animated fadeIn hovspan img100 panoUpload">	
-			{{#autoForm collection=collection schema=schema id="insertPushImagesForm" afFieldInput-placeholder="schemaLabel" type="insert"}}
+			{{#autoForm id="insertPushImagesForm" collection=collection schema=schema afFieldInput-placeholder="schemaLabel" type="insert"}}
 				<fieldset data-toggle="tooltip" title="upload new images for blog">
 					{{> afQuickField name='url' folder='blog' autosave=true advanced=true tags="blog" button=false label=false}}
 					{{#if url}} 
@@ -682,7 +682,7 @@
 					</div>	
 				{{else}}
 					<div class="col-xs-12 col-12"  id="{{_id}}"> 
-						{{#autoForm collection=collection schema=schema id="updBlogPull" doc=this afFieldInput-placeholder="schemaLabel" type="update"}}
+						{{#autoForm id="updBlogPull" collection=collection schema=schema doc=this afFieldInput-placeholder="schemaLabel" type="update"}}
 		<!-- 					{{> afQuickField name='_id' type='hidden'}} -->
 							{{> afQuickField name='author' }}
 							{{> afQuickField name='tag' }}
@@ -691,7 +691,7 @@
 					</div>
 				{{/unless}}
 			{{else}}
-				{{#autoForm collection=collection schema=schema id="newBlogPullAuthorTag" afFieldInput-placeholder="schemaLabel" type="insert"}}
+				{{#autoForm id="newBlogPullAuthorTag" collection=collection schema=schema afFieldInput-placeholder="schemaLabel" type="insert"}}
 					{{> afQuickField name='author' }}
 					{{> afQuickField name='tag' }}
 					<button class="btn btn-primary schedule" type="submit">OK</button> 
